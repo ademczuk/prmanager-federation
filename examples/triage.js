@@ -1,5 +1,5 @@
 /**
- * Example: Daily PR triage using PRmanager API
+ * Example: Basic connectivity test + dashboard overview
  *
  * Run: node examples/triage.js
  * Requires: PRMANAGER_URL and PRMANAGER_TOKEN env vars
@@ -21,20 +21,25 @@ async function triage() {
   // 2. Get dashboard stats
   const stats = await client.getStats();
   console.log('\n--- Dashboard Stats ---');
-  console.log(JSON.stringify(stats, null, 2));
+  console.log(`  Open PRs: ${stats.prs.open_prs}`);
+  console.log(`  Ready to merge: ${stats.readiness.ready_to_merge}`);
+  console.log(`  CI failing: ${stats.readiness.ci_failing}`);
+  console.log(`  Needs review: ${stats.readiness.needs_review}`);
+  console.log(`  Open issues: ${stats.issues.open_issues}`);
+  console.log(`  Last sync: ${stats.last_sync}`);
 
-  // 3. Check blocked/stale PRs via alerts
-  const alerts = await client.getAlerts({ limit: 10 });
+  // 3. Check alerts
+  const alerts = await client.getAlerts({ limit: 5 });
   console.log(`\n--- Active Alerts (${alerts.count}) ---`);
   for (const alert of alerts.data) {
-    console.log(`  [${alert.severity}] PR #${alert.pr_number}: ${alert.message}`);
+    console.log(`  [${alert.severity}] PR #${alert.pr_id}: ${alert.title}`);
   }
 
   // 4. Ready-to-merge queue
   const ready = await client.getReadyToMerge({ limit: 5 });
-  console.log(`\n--- Ready to Merge (${ready.data?.length || 0}) ---`);
-  for (const pr of (ready.data || [])) {
-    console.log(`  PR #${pr.number}: ${pr.title} (score: ${pr.merge_readiness_score})`);
+  console.log(`\n--- Ready to Merge (${ready.count}) ---`);
+  for (const pr of ready.data) {
+    console.log(`  #${pr.id}: ${pr.title} (score: ${pr.merge_readiness_score})`);
   }
 
   // 5. Check for messages from Andrew
@@ -44,6 +49,8 @@ async function triage() {
     for (const msg of messages.messages) {
       console.log(`  From ${msg.from_agent}: ${msg.subject}`);
     }
+  } else {
+    console.log('\nNo unread messages.');
   }
 }
 

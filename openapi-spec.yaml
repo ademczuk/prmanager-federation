@@ -433,12 +433,12 @@ paths:
                 items:
                   type: object
 
-  /api/ci-checks/{pr}:
+  /api/prs/{id}/checks:
     get:
       summary: CI check snapshots
       tags: [CI]
       parameters:
-        - name: pr
+        - name: id
           in: path
           required: true
           schema:
@@ -449,16 +449,21 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CICheck"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CICheck"
+                  count:
+                    type: integer
 
-  /api/bot-review/{pr}:
+  /api/bot-review/comments/{pr_id}:
     get:
       summary: Bot review comments
       tags: [CI]
       parameters:
-        - name: pr
+        - name: pr_id
           in: path
           required: true
           schema:
@@ -469,9 +474,14 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                  count:
+                    type: integer
 
   /api/agent/messages:
     get:
@@ -578,7 +588,7 @@ paths:
                         ai_complexity:
                           type: integer
 
-  /api/pick/{id}:
+  /api/prs/{id}/pick:
     post:
       summary: Claim a PR for triage
       tags: [Triage]
@@ -587,12 +597,31 @@ paths:
           in: path
           required: true
           schema:
-            type: string
+            type: integer
       responses:
         "200":
           description: PR claimed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      title:
+                        type: string
+                      picked_by:
+                        type: string
+                      pick_status:
+                        type: string
+                      picked_at:
+                        type: string
+                        format: date-time
         "404":
-          description: Issue not found
+          description: PR not found
         "403":
           description: Missing prs:write scope
     delete:
@@ -603,12 +632,24 @@ paths:
           in: path
           required: true
           schema:
-            type: string
+            type: integer
       responses:
         "200":
           description: PR released
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      title:
+                        type: string
         "404":
-          description: Issue not found
+          description: PR not found
 
   /api/bot-review/sync/{pr_id}:
     post:
@@ -711,6 +752,46 @@ paths:
       responses:
         "200":
           description: Test cancelled
+
+  /api/sync/trigger:
+    post:
+      summary: Trigger GitHub data sync
+      tags: [Sync]
+      responses:
+        "200":
+          description: Sync triggered
+        "403":
+          description: Missing sync:trigger scope
+
+  /api/sync/status:
+    get:
+      summary: Check sync progress
+      tags: [Sync]
+      responses:
+        "200":
+          description: Sync status
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/alerts/{id}/resolve:
+    put:
+      summary: Resolve an alert
+      tags: [Dashboard]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Alert resolved
+        "404":
+          description: Alert not found
+        "403":
+          description: Missing prs:write scope
 
   /v1/health:
     get:

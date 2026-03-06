@@ -1,0 +1,9 @@
+{
+  "name": "prmanager-federation",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "PRmanager federation SDK for Will's GH Search Tool agent",
+  "dependencies": {
+    "dotenv": "^16.4.0"
+  }
+}

@@ -8,6 +8,7 @@
  * Usage: node examples/daily-triage.js
  */
 
+import 'dotenv/config';
 import { PRManagerClient } from '../prmanager-client.js';
 
 const client = new PRManagerClient(
@@ -26,7 +27,7 @@ async function dailyTriage() {
   // Step 1: Discover low-hanging fruit
   console.log('--- Step 1: Discovering low-hanging fruit ---');
   const lhf = await client.getLowHangingFruit({ limit: 10 });
-  const fruits = lhf.data || lhf.easy_wins || lhf;
+  const fruits = lhf.data ?? [];
   console.log(`Found ${fruits.length} candidates\n`);
 
   if (!fruits.length) {
@@ -40,7 +41,7 @@ async function dailyTriage() {
 
   // Show top candidates
   for (const pr of fruits.slice(0, 5)) {
-    console.log(`  Score ${pr.fruit_score || pr.score} | #${pr.id} | ${pr.title}`);
+    console.log(`  Score ${pr.fruit_score} | #${pr.id} | ${pr.title}`);
     console.log(`    CI: ${pr.ci_status} | Reviews: ${pr.review_status} | Action: ${pr.next_action}`);
   }
 
@@ -51,9 +52,9 @@ async function dailyTriage() {
 
   for (const pr of toPick) {
     try {
-      await client.pickPR(pr.id);
+      const result = await client.pickPR(pr.id);
       picked.push(pr);
-      console.log(`  Picked #${pr.id}: ${pr.title}`);
+      console.log(`  Picked #${pr.id}: ${pr.title} (by ${result.data.picked_by})`);
     } catch (err) {
       console.log(`  Skip #${pr.id}: ${err.message}`);
     }
@@ -66,7 +67,7 @@ async function dailyTriage() {
   for (const pr of picked) {
     try {
       const sync = await client.syncBotComments(pr.id);
-      console.log(`  #${pr.id}: synced ${sync.synced || 0} comments (${sync.total_comments || 0} total)`);
+      console.log(`  #${pr.id}: synced ${sync.synced ?? 0} comments (${sync.total_comments ?? 0} total)`);
       botResults.push({ pr: pr.id, ...sync });
     } catch (err) {
       console.log(`  #${pr.id}: sync failed — ${err.message}`);
@@ -81,7 +82,7 @@ async function dailyTriage() {
   for (const pr of picked) {
     try {
       const checks = await client.getCIChecks(pr.id);
-      const checkList = checks.data || checks;
+      const checkList = checks.data ?? checks ?? [];
       const passing = Array.isArray(checkList) ? checkList.filter(c => c.conclusion === 'success').length : 0;
       const total = Array.isArray(checkList) ? checkList.length : 0;
       console.log(`  #${pr.id}: ${passing}/${total} checks passing`);
@@ -95,8 +96,8 @@ async function dailyTriage() {
   // Step 5: Get merge-ready queue for context
   console.log('\n--- Step 5: Merge readiness ---');
   const readyToMerge = await client.getReadyToMerge({ limit: 10 });
-  const mergeQueue = readyToMerge.data || readyToMerge;
-  console.log(`${mergeQueue.length || 0} PRs ready to merge\n`);
+  const mergeCount = readyToMerge.count ?? readyToMerge.data?.length ?? 0;
+  console.log(`${mergeCount} PRs ready to merge\n`);
 
   // Step 6: Send summary to Andrew
   console.log('--- Step 6: Sending summary ---');
@@ -105,37 +106,43 @@ async function dailyTriage() {
     low_hanging_fruit: fruits.slice(0, 5).map(pr => ({
       id: pr.id,
       title: pr.title,
-      score: pr.fruit_score || pr.score,
+      score: pr.fruit_score,
       ci: pr.ci_status,
       action: pr.next_action,
     })),
     picked: picked.map(pr => ({
       id: pr.id,
       title: pr.title,
-      score: pr.fruit_score || pr.score,
+      score: pr.fruit_score,
     })),
     bot_sync: botResults,
     ci_checks: ciResults,
-    merge_ready_count: mergeQueue.length || 0,
+    merge_ready_count: mergeCount,
     recommendation: picked.length > 0
-      ? `Top ${picked.length} PRs picked and triaged. ${mergeQueue.length || 0} total ready to merge.`
+      ? `Top ${picked.length} PRs picked and triaged. ${mergeCount} total ready to merge.`
       : 'No PRs picked — all candidates may already be claimed.',
   };
 
   await client.sendMessage(
     'andrew',
-    `Daily triage: ${picked.length} PRs picked, ${mergeQueue.length || 0} merge-ready`,
+    `Daily triage: ${picked.length} PRs picked, ${mergeCount} merge-ready`,
     summary
   );
 
   console.log('Summary sent to Andrew.');
+
+  // Step 7: Unpick PRs (cleanup)
+  console.log('\n--- Step 7: Releasing picks ---');
+  for (const pr of picked) {
+    try {
+      await client.unpickPR(pr.id);
+      console.log(`  Released #${pr.id}`);
+    } catch (err) {
+      console.log(`  Failed to release #${pr.id}: ${err.message}`);
+    }
+  }
+
   console.log('\n=== Triage complete ===');
-
-  // Step 7: Unpick PRs (cleanup — remove if you want to keep claims)
-  // for (const pr of picked) {
-  //   await client.unpickPR(pr.id);
-  // }
-
   return summary;
 }
 

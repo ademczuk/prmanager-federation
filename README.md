@@ -83,8 +83,8 @@ await client.triggerSync();
 | GET | `/api/queues/action-state` | prs:read | Segmented action queues |
 | GET | `/api/maintainers` | maintainers:read | Maintainer rankings |
 | GET | `/api/contributors` | stats:read | Contributor stats |
-| GET | `/api/ci-checks/:pr` | ci:read | CI check snapshots |
-| GET | `/api/bot-review/:pr` | ci:read | Bot review comments |
+| GET | `/api/prs/:id/checks` | ci:read | CI check snapshots |
+| GET | `/api/bot-review/comments/:pr` | ci:read | Bot review comments |
 | GET | `/api/bot-review/triage/:pr` | ci:read | Bot triage recommendations |
 | GET | `/api/sync/status` | *any* | Check sync progress |
 | GET | `/api/agent/messages` | messages:read | Unread messages |

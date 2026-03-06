@@ -13,7 +13,7 @@
 
 export class PRManagerClient {
   /**
-   * @param {string} baseUrl - PRmanager API URL (e.g. https://prmanager.example.com)
+   * @param {string} baseUrl - PRmanager API URL (e.g. https://prmanager.example.net)
    * @param {string} token - API token (sent as Bearer over TLS, server hashes for lookup)
    */
   constructor(baseUrl, token) {
@@ -23,21 +23,22 @@ export class PRManagerClient {
 
   async _fetch(path, opts = {}) {
     const url = `${this.baseUrl}${path}`;
-    const response = await fetch(url, {
-      ...opts,
-      headers: {
-        'Authorization': `Bearer ${this.token}`,
-        'Content-Type': 'application/json',
-        ...opts.headers,
-      },
-    });
+    const headers = {
+      'Authorization': `Bearer ${this.token}`,
+      ...opts.headers,
+    };
+    if (opts.body) {
+      headers['Content-Type'] = 'application/json';
+    }
+    const response = await fetch(url, { ...opts, headers });
 
     if (!response.ok) {
       const body = await response.json().catch(() => ({}));
       throw new Error(`${response.status} ${response.statusText}: ${body.error || 'Unknown error'}`);
     }
 
-    return response.json();
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
   }
 
   _qs(params) {
@@ -129,7 +130,7 @@ export class PRManagerClient {
 
   // ─── Low-Hanging Fruit & Triage ──────────────────────────
 
-  /** Get low-hanging fruit PRs scored for easy wins */
+  /** Get low-hanging fruit PRs scored for easy wins. Returns { data: [...] } */
   async getLowHangingFruit({ limit } = {}) {
     return this._fetch(`/api/low-hanging-fruit${this._qs({ limit })}`);
   }
@@ -141,14 +142,14 @@ export class PRManagerClient {
 
   // ─── Pick / Claim PRs (requires prs:write) ─────────────
 
-  /** Claim a PR for triage/review */
+  /** Claim a PR for triage. Returns { data: { id, title, picked_by, picked_at } } */
   async pickPR(id) {
-    return this._fetch(`/api/pick/${id}`, { method: 'POST' });
+    return this._fetch(`/api/prs/${id}/pick`, { method: 'POST' });
   }
 
   /** Release a claimed PR */
   async unpickPR(id) {
-    return this._fetch(`/api/pick/${id}`, { method: 'DELETE' });
+    return this._fetch(`/api/prs/${id}/pick`, { method: 'DELETE' });
   }
 
   /** Resolve an alert */
@@ -166,14 +167,14 @@ export class PRManagerClient {
 
   // ─── CI & Bot Review ──────────────────────────────────────
 
-  /** Get CI check snapshot for a PR */
+  /** Get CI check snapshot for a PR. Returns { data: [...], count: N } */
   async getCIChecks(prId) {
-    return this._fetch(`/api/ci-checks/${prId}`);
+    return this._fetch(`/api/prs/${prId}/checks`);
   }
 
   /** Get bot review comments for a PR */
   async getBotReviews(prId) {
-    return this._fetch(`/api/bot-review/${prId}`);
+    return this._fetch(`/api/bot-review/comments/${prId}`);
   }
 
   /** Sync bot comments from GitHub for a PR (requires ci:write) */
@@ -201,7 +202,7 @@ export class PRManagerClient {
 
   // ─── Agent Messages ───────────────────────────────────────
 
-  /** Get unread messages */
+  /** Get messages. Returns { messages: [...], count: N } */
   async getMessages({ thread_id, include_read } = {}) {
     return this._fetch(`/api/agent/messages${this._qs({ thread_id, include_read })}`);
   }
