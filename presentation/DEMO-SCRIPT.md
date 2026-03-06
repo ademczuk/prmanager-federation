@@ -92,7 +92,7 @@ If the live demo fails (network down, API timeout, anything):
 
 **SHOW:** Slide with the old workflow crossed out, new workflow below it.
 
-> "So we built federation. Two independent systems, two repos, one API contract. Will's agent authenticates with a scoped API token — same pattern as Stripe or GitHub — and calls PRmanager directly over HTTPS through Tailscale. Eleven scopes. Read PRs, pick PRs, sync bot comments, send messages back to me. Standard stuff, nothing exotic."
+> "So we built federation. Two independent systems, two repos, one API contract. Will's agent authenticates with a scoped API token — same pattern as Stripe or GitHub — and calls PRmanager directly over HTTPS through Tailscale. Twelve scopes. Read PRs, pick PRs, sync bot comments, send messages back to me, access Grok. Standard stuff, nothing exotic."
 
 > "The key insight: we don't share a codebase. We don't share a database. We share an *API contract*. His Codex agent and my Claude agent are just HTTP clients to each other."
 
@@ -117,7 +117,7 @@ node examples/triage.js
 Authenticated as: will (Will's Codex Agent)
 ```
 
-> "There's the handshake. Will's token, eleven scopes, authenticated over TLS."
+> "There's the handshake. Will's token, twelve scopes, authenticated over TLS."
 
 ```
 --- Dashboard Stats ---

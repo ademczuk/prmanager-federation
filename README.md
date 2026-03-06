@@ -1,4 +1,4 @@
-# PRmanager — Will's Agent Access (GH Search Tool Integration)
+# PRmanager — Will's Agent Access (Federation Client)
 
 Shared API access to PRmanager's PR intelligence platform for openclaw/openclaw.
 
