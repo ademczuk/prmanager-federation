@@ -1,31 +1,29 @@
 # Speaker Submission Email
 
 **To:** viennaaiengineering+speakers@gmail.com
-**Subject:** Lightning Talk: Two AI Agents Maintaining OpenClaw — PRmanager Federation
+**Subject:** Lightning Talk: "Don't Hack Me, Bro" — Agent-to-Agent Security for OpenClaw
 
 ---
 
 Hi Bogdan, Alex, and Georg,
 
-I'd like to submit a lightning talk for the March 10th OpenClaw & Codex night.
+I'd like to submit a lightning talk for the March 10th OpenClaw & Codex night at Magenta HQ.
 
-**Title:** Two Agents, One Repo — How We Built Agent-to-Agent PR Triage for OpenClaw
+**Title:** Don't Hack Me, Bro — Agent-to-Agent Security for OpenClaw
 
-**What I'll show:**
+**What I'll show (7 min, live demo + 2-3 slides):**
 
-openclaw/openclaw gets a new PR every two minutes — 7,000+ open right now. I built PRmanager, a PR intelligence platform with 48 MCP tools that reduces that firehose to a prioritised merge-ready queue. But the interesting part: I've federated it with another contributor's Codex agent (Will/@sparkyrider) so our two agents — my Claude Code and his Codex CLI — collaborate on PR triage over a secure HTTP API, no human intermediary.
+openclaw/openclaw has 7,000+ open PRs. I built PRmanager (80 MCP tools, 31 PostgreSQL tables) to triage them, then federated it with another contributor's Codex agent (Will/@sparkyrider) so our two agents — my Claude Code and his Codex CLI — collaborate on PR triage over HTTPS. No human clipboard relay. We're packaging this as an OpenClaw skill called ForceMultiplier.
 
-The demo: two different LLMs, two different people, working the same GitHub repo autonomously. Agent picks PR, syncs bot comments, classifies false positives, checks merge readiness, sends a structured report to the other agent. Standard API key auth (SHA-256 hashed tokens, same pattern as Stripe).
+The talk covers the real stuff:
+
+- **The federation:** Two different LLMs, two different people, one API contract. Live demo of Will's agent authenticating, pulling stats, picking PRs, and reporting back to mine.
+- **The fail:** I red-teamed my own auth gateway with a 32B model (QwQ) that doesn't do sycophancy. It found three FATAL security flaws in code that Claude, GPT, and Gemini all called "solid." Lesson: if every model tells you you're brilliant, you need a model that doesn't care about your feelings.
+- **The punchline:** SaaS is copyable — my agent replicated git-tower.com in 30 minutes. Welcome to AaaS (Agents as a Service). It smells like what it sounds like.
 
 I'm an openclaw core contributor with 3 merged PRs (#32128, #32183, #32311) — gateway routing, test infrastructure, and webchat fixes.
 
-**Why the audience needs to see this:**
-
-This isn't a hypothetical — it's running in production right now against the real openclaw repo. It's the first example I know of where two people's AI agents (Claude + Codex) coordinate autonomously on open-source maintenance. Directly on-theme for the meetup.
-
-Happy to do a live demo or have a recorded fallback ready.
-
-Slides: https://ademczuk.github.io/prmanager-federation/presentation/slides.html
+Slides are live: https://ademczuk.github.io/prmanager-federation/presentation/slides.html
 
 Cheers,
 Andrew
