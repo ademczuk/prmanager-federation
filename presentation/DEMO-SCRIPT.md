@@ -1,4 +1,4 @@
-# Demo Script: Two Agents, One Repo
+# Demo Script: Don't Hack Me, Bro
 ## Vienna AI Engineering Meetup — OpenClaw & Codex Night
 ### 7-Minute Lightning Talk
 
@@ -18,19 +18,19 @@
 - [ ] Terminal width: 100 columns max (no line wrapping on projector)
 - [ ] `cd C:\Projects\_Jobs\Collaborations\Andrew\Wil` already set
 - [ ] `.env` loaded with `PRMANAGER_URL` and `PRMANAGER_TOKEN`
-- [ ] Clear terminal history (`clear`) — no leftover junk visible
+- [ ] Clear terminal history (`clear`)
 
 ### Browser Tabs (pre-opened, in order)
 1. Dashboard at `http://localhost:3099` — PR overview tab visible
 2. `https://github.com/openclaw/openclaw/pulls` — shows the PR count for credibility
-3. Slides (Google Slides / Keynote / whatever — presenter mode on secondary display)
+3. Slides at `https://ademczuk.github.io/prmanager-federation/presentation/slides.html`
 
 ### Display
 - [ ] Screen resolution: **1920x1080** (projectors choke on higher)
-- [ ] Display mirroring ON (not extended — you need to see what they see)
+- [ ] Display mirroring ON (not extended)
 - [ ] Night mode / f.lux / blue light filter OFF
 - [ ] Notifications OFF (Do Not Disturb on Windows + phone)
-- [ ] Close Slack, Discord, Teams, email — anything that could pop a notification
+- [ ] Close Slack, Discord, Teams, email
 
 ### Backup Plan
 If the live demo fails (network down, API timeout, anything):
@@ -40,6 +40,10 @@ If the live demo fails (network down, API timeout, anything):
 - [ ] **Screenshot** of triage output saved as `presentation/demo-screenshot.png`
 - [ ] Transition line ready: "The venue WiFi has opinions — let me show you the recording from this morning"
 - [ ] Do NOT apologise more than once. Just switch and keep going.
+
+### Gource Background Animation
+- [ ] `presentation/openclaw-gource.mp4` ready as background visual if needed
+- [ ] Can loop during title/closing slides for extra visual punch
 
 ### Mental
 - [ ] Water bottle on stage
@@ -52,59 +56,67 @@ If the live demo fails (network down, API timeout, anything):
 
 ---
 
-### [0:00 - 0:30] HOOK — The Crisis
+### [0:00 - 0:30] SLIDE 1 — Title
 
-**SHOW:** Title slide. Just the title and your name. Nothing else.
+**SHOW:** Title slide. "Don't Hack Me, Bro." ForceMultiplier badge. Your name.
 
-> "openclaw/openclaw has seven thousand open pull requests. Not seven hundred — seven *thousand*. A new one lands every two minutes. Nobody can keep up. Not the maintainers, not the bots, definitely not me."
+> "openclaw/openclaw has seven thousand open pull requests. Not seven hundred. Seven *thousand*. A new one lands every two minutes. Nobody can keep up."
 
 *Beat. Let that land.*
 
-> "So I built a system where two AI agents — my Claude Code and another contributor's Codex CLI — triage those PRs together. No human in the loop. They talk to each other over an API I'll show you in about four minutes."
+> "So I built a system where two AI agents triage those PRs together. My Claude Code and another contributor's Codex CLI. They talk over HTTPS. No human in the loop. We're calling it ForceMultiplier."
 
-**Timing note:** This is 30 seconds. Don't rush the number. "Seven thousand" should hit like a punchline.
-
----
-
-### [0:30 - 2:00] PRmanager Overview
-
-**SHOW:** Architecture slide. Keep it simple: PostgreSQL -> Express API -> Vite Dashboard. Show the numbers: 48 MCP tools, 27 tables.
-
-> "PRmanager is the thing I built to make sense of this. It's a PR intelligence platform — Express API backed by PostgreSQL with 27 tables, a Vite dashboard for the humans, and 48 MCP tools so AI agents can use it directly."
-
-> "It does three things. First — it scores every PR for merge readiness. CI status, review state, file complexity, staleness. Second — it finds low-hanging fruit. PRs that are *almost* ready to merge but need one small push. Third — it lets agents claim PRs, triage bot comments, and report back."
-
-**SHOW:** Quick flash of the dashboard — switch to browser, show the PR overview tab. 3 seconds max. Don't click around.
-
-> "That's the dashboard. Ten tabs. But the interesting part isn't the UI — it's what happens when you take the human out."
-
-**Timing note:** 90 seconds. The dashboard flash is a teaser, not a demo. Get in, show it exists, get out.
+**Timing note:** 30 seconds. Don't rush "seven thousand." It's the punchline.
 
 ---
 
-### [2:00 - 4:00] The Federation Concept
+### [0:30 - 1:30] SLIDE 2 — The Problem
 
-**SHOW:** Federation architecture slide. Two boxes: "Andrew's Claude Code + PRmanager" and "Will's Codex CLI + GH Search Tool". Arrow between them labeled "HTTPS JSON / Bearer auth".
+**SHOW:** The big animated counter. 7,083 ticks up on screen.
 
-> "Here's where it gets interesting. I'm not the only person building tools for openclaw. Will — @sparkyrider — built a completely separate PR search tool using Codex and OpenAI embeddings. Different LLM, different stack, different person."
+Let the number animate. Point at it.
 
-> "The old workflow was embarrassing. I'd find something in PRmanager, copy it into a Claude Desktop chat, paste it to Will on Discord, he'd paste it into his Codex session. Human clipboard relay. That's not AI collaboration — that's two people with extra steps."
+> "That's not a typo. Seven thousand and eighty-three. Every single one needs triaging."
 
-**SHOW:** Slide with the old workflow crossed out, new workflow below it.
-
-> "So we built federation. Two independent systems, two repos, one API contract. Will's agent authenticates with a scoped API token — same pattern as Stripe or GitHub — and calls PRmanager directly over HTTPS through Tailscale. Twelve scopes. Read PRs, pick PRs, sync bot comments, send messages back to me, access Grok. Standard stuff, nothing exotic."
-
-> "The key insight: we don't share a codebase. We don't share a database. We share an *API contract*. His Codex agent and my Claude agent are just HTTP clients to each other."
-
-**Timing note:** 2 minutes. This is the intellectual meat. Don't rush it, but don't over-explain the auth either. "Same pattern as Stripe" is enough — this audience knows what Bearer tokens are.
+Move to next slide as you start the solution.
 
 ---
 
-### [4:00 - 5:30] LIVE DEMO
+### [1:30 - 2:30] SLIDE 3 — PRmanager
+
+**SHOW:** PRmanager stats. 80 MCP tools, 31 tables, 11 dashboard tabs.
+
+> "PRmanager is the thing I built to make sense of this. Express API, PostgreSQL with 31 tables, 80 MCP tools so AI agents can drive it directly."
+
+> "It scores every PR for merge readiness. CI status, review state, file complexity, staleness. Seven thousand PRs go in. Twelve merge-ready come out. That's the funnel."
+
+**SHOW:** Quick flash of the dashboard if you've got the browser tab ready. 3 seconds max.
+
+**Timing note:** 60 seconds. The dashboard flash is a teaser, not a demo.
+
+---
+
+### [2:30 - 4:00] SLIDE 4 — The Federation
+
+**SHOW:** Architecture diagram. Andrew's Claude Code on one side, Will's Codex CLI on the other, HTTPS API in the middle.
+
+> "I'm not the only person building tools for openclaw. Will built a completely separate PR search tool using Codex and OpenAI embeddings. Different LLM, different stack, different person."
+
+> "The old workflow was embarrassing. I'd find something in PRmanager, paste it to Will on Discord, he'd paste it into Codex. Human clipboard relay. That's not AI collaboration, that's two people with extra steps."
+
+> "So we built federation. Two repos, one API contract. Will's agent authenticates with a scoped token and calls PRmanager directly. Same pattern as Stripe. Twelve scopes. Standard stuff."
+
+> "The key insight: we don't share a codebase. We don't share a database. We share an *API contract*."
+
+**Timing note:** 90 seconds. This is the intellectual core. "Same pattern as Stripe" is enough for this audience.
+
+---
+
+### [4:00 - 5:00] LIVE DEMO (from slide 4, switch to terminal)
 
 **SHOW:** Switch to terminal. Full screen. Font size 20+.
 
-> "Let me show you what Will's agent actually does."
+> "Let me show you the handshake."
 
 **TYPE:**
 ```
@@ -117,39 +129,33 @@ node examples/triage.js
 Authenticated as: will (Will's Codex Agent)
 ```
 
-> "There's the handshake. Will's token, twelve scopes, authenticated over TLS."
+> "There's the auth. Will's token, twelve scopes, over TLS."
 
 ```
 --- Dashboard Stats ---
   Open PRs: 7,083
   Ready to merge: 12
-  CI failing: ...
 ```
 
-> "Seven thousand PRs. Twelve ready to merge right now. That's the funnel."
+> "Seven thousand PRs. Twelve ready to merge right now."
 
 ```
 --- Ready to Merge (12) ---
   #33608: chore(ci): unblock audit + command spec checks (score: ...)
 ```
 
-> "And there's the top candidate. Score 89. CI passing, reviews approved, no merge conflicts. That's a PR a bot could merge *right now*."
+> "Score 89. CI passing, reviews approved, no merge conflicts. A bot could merge that right now."
 
-**IF TIME ALLOWS (you're under 5:00):**
-
-> "Let me show the full workflow."
+**IF TIME ALLOWS (you're under 4:30):**
 
 **TYPE:**
 ```
 node examples/daily-triage.js
 ```
 
-> "This is the seven-step daily triage. Discover low-hanging fruit, pick the top three, sync their bot comments from GitHub, check CI, assess merge readiness, send a structured report to me, then release the picks. Fully autonomous."
+> "Full triage. Discover low-hanging fruit, pick top three, sync bot comments, check CI, send me a report, release the picks. Autonomous."
 
-**Let it run. Don't narrate every line — let the output speak. Point at key moments:**
-- "There — it just picked three PRs"
-- "Syncing bot comments from GitHub live"
-- "And there's the summary sent to my agent's inbox"
+Point at key moments. Don't narrate every line.
 
 ---
 
@@ -159,39 +165,65 @@ node examples/daily-triage.js
 
 **SHOW:** Play `presentation/demo-recording.mp4` or show `presentation/demo-screenshot.png`.
 
-> "Same output. Will's agent authenticated, pulled the stats — seven thousand PRs, twelve ready to merge — picked the top three, triaged them, sent me a report."
+Keep narrating the same story. Don't dwell on the failure.
 
-**Keep narrating the same story. The recording has the same data. Don't dwell on the failure.**
-
-**Timing note:** 90 seconds for the demo. If `triage.js` works and finishes fast (it takes ~3 seconds), run `daily-triage.js` too. If it's slow or flaky, stick with `triage.js` only and move on.
+**Timing note:** 60 seconds for demo. If `triage.js` works fast, run `daily-triage.js` too. If flaky, stick with triage only.
 
 ---
 
-### [5:30 - 6:30] THE PUNCHLINE
+### [5:00 - 5:40] SLIDE 5 — SaaS is Copyable
 
-**SHOW:** Slide with the three merged PRs. PR numbers, titles, green "merged" badges.
+**SHOW:** The git-tower vs "30 min" comparison. AaaS punchline.
 
-> "This isn't a prototype. I'm an openclaw core contributor. Three merged PRs — gateway routing, test infrastructure, webchat fixes. PRmanager is how I found them. The low-hanging fruit detector flagged them, I triaged them with the same workflow you just saw, and they shipped."
+> "Quick tangent. git-tower.com is a hundred euros a year. My agent replicated it in thirty minutes. And improved it."
 
-> "So here's the thing nobody talks about at AI meetups: AI is now maintaining AI. openclaw is an AI project. Its PRs are written by AI agents. And now AI agents are *triaging and merging* those PRs. The ouroboros is real."
+> "SaaS is trivially copyable now. Welcome to AaaS. Agents as a Service."
 
-*Let that sit for a beat.*
+*Pause for the phonetic joke to land.*
 
-> "Two different LLMs — Claude and Codex — built by two different people, running on two different machines, coordinating over a plain HTTP API to maintain a repo that neither of us owns. No orchestrator. No shared memory. Just an API contract and scoped tokens."
+> "Peter Steinberger says OpenClaw smells like a clanker. I reckon this smells like AaaS."
 
-**Timing note:** 60 seconds. This is the emotional peak. "AI maintaining AI" is the soundbite they'll remember. Don't undercut it with caveats.
+**Timing note:** 40 seconds. Let the audience laugh. Don't step on it.
 
 ---
 
-### [6:30 - 7:00] CLOSE
+### [5:40 - 6:20] SLIDE 6 — The Anti-Sycophant
 
-**SHOW:** Final slide. GitHub URL, your handle, a QR code if you have one.
+**SHOW:** The QwQ-32B brutal output next to the Claude/GPT/Gemini "great work!" response.
 
-> "PRmanager is open source. The federation spec is in the repo — if you're building agent tools and want your agent to talk to mine, the API is live right now. Literally right now — you saw the curl."
+> "Here's the thing that actually scared me. I built the auth gateway for this federation. Asked Claude, GPT, and Gemini to review it. All three said it was solid. Great work, minor suggestion, ship it."
 
-> "I'm Andrew. Come find me after if you want to see the dashboard or talk about agent-to-agent auth. Thanks."
+> "Then I pointed QwQ-32B at it. A 32-billion parameter model that doesn't do sycophancy. It found three FATAL flaws. Unsalted SHA-256, timing-side-channel on the token comparison, dev mode that bypasses auth entirely when an env var is unset."
 
-**Walk off. Don't linger. Seven minutes means seven minutes.**
+> "Verdict: REWRITE. A junior wrote this, a senior would have caught it."
+
+*Beat.*
+
+> "If every model tells you you're brilliant, you need a model that doesn't care about your feelings."
+
+**Timing note:** 40 seconds. This is the real talk. The audience knows sycophancy is a problem. Give them the receipts.
+
+---
+
+### [6:20 - 6:50] SLIDE 7 — The Punchline
+
+**SHOW:** Three merged PR badges. The "$1M app" joke.
+
+> "This isn't a prototype. Three merged PRs on openclaw. Gateway routing, test infra, webchat fixes. PRmanager found them. The low-hanging fruit detector flagged them. They shipped."
+
+> "AI is now maintaining AI. openclaw is an AI project. Its PRs are written by agents. And now agents are *triaging* those PRs."
+
+**Timing note:** 30 seconds. "AI maintaining AI" is the soundbite.
+
+---
+
+### [6:50 - 7:00] SLIDE 8 — Close
+
+**SHOW:** Links. GitHub, slides URL, federation SDK.
+
+> "PRmanager is open source. The API is live right now. You literally just saw the curl. Come find me after if you want to see the dashboard. I'm Andrew. Thanks."
+
+**Walk off. Seven minutes means seven minutes.**
 
 ---
 
@@ -199,38 +231,43 @@ node examples/daily-triage.js
 
 | Time    | Section               | Duration | What's on screen          |
 |---------|-----------------------|----------|---------------------------|
-| 0:00    | Hook                  | 0:30     | Title slide               |
-| 0:30    | PRmanager overview    | 1:30     | Architecture slide + dashboard flash |
-| 2:00    | Federation concept    | 2:00     | Federation diagram slides |
-| 4:00    | Live demo             | 1:30     | Terminal (full screen)    |
-| 5:30    | Punchline             | 1:00     | Merged PRs slide          |
-| 6:30    | Close                 | 0:30     | Final slide + CTA         |
+| 0:00    | Title                 | 0:30     | Slide 1: Don't Hack Me, Bro |
+| 0:30    | The Problem           | 1:00     | Slide 2: 7,083 counter     |
+| 1:30    | PRmanager             | 1:00     | Slide 3: stats + dashboard flash |
+| 2:30    | Federation            | 1:30     | Slide 4: architecture diagram |
+| 4:00    | Live Demo             | 1:00     | Terminal (full screen)    |
+| 5:00    | SaaS / AaaS           | 0:40     | Slide 5: git-tower vs 30 min |
+| 5:40    | Anti-Sycophant        | 0:40     | Slide 6: QwQ brutal output |
+| 6:20    | Punchline             | 0:30     | Slide 7: merged PRs + joke |
+| 6:50    | Close                 | 0:10     | Slide 8: links            |
 | **7:00** | **Done**             |          |                           |
 
 ## EMERGENCY TIME MANAGEMENT
 
 - **Running long at 4:00?** Skip `daily-triage.js`, only run `triage.js`. Saves 30-40 seconds.
-- **Running long at 5:30?** Cut the ouroboros line. Go straight to "Two different LLMs..." and then close.
-- **Running short at 5:00?** Expand the demo — scroll back through the output, point at specific PR titles, talk about the scoring algorithm.
-- **Demo completely fails?** You gain 30 seconds. Use them on the punchline section — tell the story of the three merged PRs in more detail.
+- **Running long at 5:00?** Compress slides 5+6 into one beat: "I red-teamed my own auth, QwQ found three FATALs, every other model said ship it. Also SaaS is dead. Moving on."
+- **Running short at 5:00?** Expand the demo. Scroll through output, point at PR titles, talk about the scoring algorithm.
+- **Demo completely fails?** You gain 30-40 seconds. Use them on anti-sycophant section with more detail on the three FATALs.
 
 ## SLIDE INVENTORY
 
-You need exactly 5 slides:
+8 slides total:
 
-1. **Title** — "Two Agents, One Repo" / Andrew / Vienna AI Engineering / date
-2. **Architecture** — PRmanager stack diagram (PostgreSQL, Express, Vite, 48 MCP tools, 27 tables)
-3. **Federation** — Two-box diagram showing Andrew's stack and Will's stack connected by HTTPS
-4. **Old vs New** — Crossed-out clipboard relay vs direct API (optional — can merge into slide 3)
-5. **The Receipts** — Three merged PR screenshots with green badges (#32128, #32183, #32311)
-6. **Close** — GitHub URL, handle, "API is live right now"
+1. **Title** — "Don't Hack Me, Bro" / Andrew / ForceMultiplier badge
+2. **The Problem** — Animated 7,083 counter
+3. **PRmanager** — 80 MCP tools, 31 tables, 11 tabs, merge readiness score
+4. **The Federation** — Architecture diagram (Andrew + Will + HTTPS API)
+5. **SaaS is Copyable** — git-tower €100/yr vs 30 min agent clone, AaaS joke
+6. **The Anti-Sycophant** — QwQ-32B brutal output vs Claude/GPT/Gemini praise
+7. **The Punchline** — Three merged PRs, "$1M app for $2M in tokens"
+8. **Close** — GitHub link, slides URL, federation SDK
 
 ## PHRASES TO AVOID
 
 - "Um, so basically..." — Start sentences with conviction
 - "This is just a side project" — It's running against a real repo with 7K PRs. Own it.
-- "I know this is simple but..." — The audience is here to see real things. Simple and working beats complex and theoretical.
-- "Can everyone see that?" — If they can't, fix the font size beforehand. Don't ask during the talk.
+- "I know this is simple but..." — Simple and working beats complex and theoretical.
+- "Can everyone see that?" — Fix the font size beforehand.
 - "Let me just..." — Cut the filler. Do the thing or don't.
 
 ## PHRASES THAT WORK
@@ -240,3 +277,5 @@ You need exactly 5 slides:
 - "AI maintaining AI." (The soundbite)
 - "Two LLMs, two people, one API contract." (The summary)
 - "The API is live right now." (Proof over promises)
+- "It smells like AaaS." (The laugh)
+- "You need a model that doesn't care about your feelings." (The anti-sycophant hook)

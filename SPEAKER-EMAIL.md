@@ -1,32 +1,32 @@
 # Speaker Submission Email
 
 **To:** viennaaiengineering+speakers@gmail.com
-**Subject:** Lightning Talk: "Don't Hack Me, Bro" — Agent-to-Agent Security for OpenClaw
+**Subject:** Lightning Talk Submission: "Don't Hack Me, Bro"
 
 ---
 
 Hi Bogdan, Alex, and Georg,
 
-I'd like to submit a lightning talk for the March 10th OpenClaw & Codex night at Magenta HQ.
+Keen to submit a lightning talk for the March 10th OpenClaw & Codex night at Magenta HQ.
 
-**Title:** Don't Hack Me, Bro — Agent-to-Agent Security for OpenClaw
+**Title:** Don't Hack Me, Bro
 
-**What I'll show (7 min, live demo + 2-3 slides):**
+**Format:** 7 minutes. Live demo, couple of slides.
 
-openclaw/openclaw has 7,000+ open PRs. I built PRmanager (80 MCP tools, 31 PostgreSQL tables) to triage them, then federated it with another contributor's Codex agent (Will/@sparkyrider) so our two agents — my Claude Code and his Codex CLI — collaborate on PR triage over HTTPS. No human clipboard relay. We're packaging this as an OpenClaw skill called ForceMultiplier.
+**The gist:** openclaw/openclaw has over 7,000 open pull requests. I built PRmanager to triage them (80 MCP tools, 31 PostgreSQL tables, Vite dashboard). Then I got another contributor's Codex agent talking to mine over HTTPS so the two of them can do PR triage together without a human copy-pasting between chat windows. We're calling it ForceMultiplier. It's being packaged as an OpenClaw skill.
 
-The talk covers the real stuff:
+Here's what the talk actually covers:
 
-- **The federation:** Two different LLMs, two different people, one API contract. Live demo of Will's agent authenticating, pulling stats, picking PRs, and reporting back to mine.
-- **The fail:** I red-teamed my own auth gateway with a 32B model (QwQ) that doesn't do sycophancy. It found three FATAL security flaws in code that Claude, GPT, and Gemini all called "solid." Lesson: if every model tells you you're brilliant, you need a model that doesn't care about your feelings.
-- **The punchline:** SaaS is copyable — my agent replicated git-tower.com in 30 minutes. Welcome to AaaS (Agents as a Service). It smells like what it sounds like.
+- **Federation demo.** Two LLMs (my Claude Code, Will's Codex CLI), two different people, one API contract. I'll run the live handshake on stage. Auth, stats pull, PR pick, report back. The whole loop.
+- **The anti-sycophant.** I red-teamed my own auth gateway with QwQ-32B because every other model kept telling me the code was solid. It wasn't. QwQ found three FATAL flaws that Claude, GPT, and Gemini missed. Turns out you need at least one model that doesn't care about your feelings.
+- **AaaS.** My agent replicated git-tower.com in 30 minutes. Not a joke. SaaS is trivially copyable now, which means we've entered the age of Agents as a Service. Peter Steinberger says it smells like a clanker. I reckon it smells like what AaaS sounds like.
 
-I'm an openclaw core contributor with 3 merged PRs (#32128, #32183, #32311) — gateway routing, test infrastructure, and webchat fixes.
+I'm a core contributor on openclaw with 3 merged PRs (#32128, #32183, #32311). Gateway routing, test infra, webchat fixes.
 
-Slides are live: https://ademczuk.github.io/prmanager-federation/presentation/slides.html
+Slides: https://ademczuk.github.io/prmanager-federation/presentation/slides.html
 
 Cheers,
 Andrew
 
 GitHub: https://github.com/ademczuk
-PRmanager Federation: https://github.com/ademczuk/prmanager-federation
+Repo: https://github.com/ademczuk/prmanager-federation
