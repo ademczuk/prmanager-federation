@@ -1,0 +1,25 @@
+# Environment (contains secrets)
+.env
+.env.local
+.env.*.local
+
+# Claude Code workspace
+.claude/
+.rag-cache/
+
+# Local databases
+*.db
+data/
+
+# Logs
+*.log
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Delegation artifacts
+delegation-log.txt

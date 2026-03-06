@@ -1,0 +1,245 @@
+/**
+ * PRmanager Client SDK — HTTP client for Will's Codex agent
+ *
+ * Standard API key auth:
+ *   Raw token sent as Bearer over TLS. Server hashes on receipt for lookup.
+ *   Same pattern as Stripe, GitHub, etc.
+ *
+ * Usage:
+ *   import { PRManagerClient } from './prmanager-client.js';
+ *   const client = new PRManagerClient(process.env.PRMANAGER_URL, process.env.PRMANAGER_TOKEN);
+ *   const prs = await client.listPRs({ state: 'open', limit: 20 });
+ */
+
+export class PRManagerClient {
+  /**
+   * @param {string} baseUrl - PRmanager API URL (e.g. https://prmanager.example.com)
+   * @param {string} token - API token (sent as Bearer over TLS, server hashes for lookup)
+   */
+  constructor(baseUrl, token) {
+    this.baseUrl = baseUrl.replace(/\/$/, '');
+    this.token = token;
+  }
+
+  async _fetch(path, opts = {}) {
+    const url = `${this.baseUrl}${path}`;
+    const response = await fetch(url, {
+      ...opts,
+      headers: {
+        'Authorization': `Bearer ${this.token}`,
+        'Content-Type': 'application/json',
+        ...opts.headers,
+      },
+    });
+
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      throw new Error(`${response.status} ${response.statusText}: ${body.error || 'Unknown error'}`);
+    }
+
+    return response.json();
+  }
+
+  _qs(params) {
+    const filtered = Object.fromEntries(
+      Object.entries(params).filter(([, v]) => v !== undefined && v !== null)
+    );
+    const qs = new URLSearchParams(filtered).toString();
+    return qs ? `?${qs}` : '';
+  }
+
+  // ─── Identity ──────────────────────────────────────────────
+
+  /** Check who this token identifies as */
+  async whoami() {
+    return this._fetch('/api/agent/me');
+  }
+
+  // ─── PRs ───────────────────────────────────────────────────
+
+  /** List PRs with optional filters */
+  async listPRs({ state, category, author, sort, limit } = {}) {
+    return this._fetch(`/api/prs${this._qs({ state, category, author, sort, limit })}`);
+  }
+
+  /** Get details for a specific PR */
+  async getPR(id) {
+    return this._fetch(`/api/prs/${id}`);
+  }
+
+  /** Search PRs by query string */
+  async searchPRs(query, { limit } = {}) {
+    return this._fetch(`/api/prs/search${this._qs({ q: query, limit })}`);
+  }
+
+  /** Get stacked PRs for a PR */
+  async getStackedPRs(id) {
+    return this._fetch(`/api/prs/${id}/stacked`);
+  }
+
+  // ─── Issues ────────────────────────────────────────────────
+
+  /** List issues with optional filters */
+  async listIssues({ state, label, sort, limit } = {}) {
+    return this._fetch(`/api/issues${this._qs({ state, label, sort, limit })}`);
+  }
+
+  // ─── Stats & Dashboard ────────────────────────────────────
+
+  /** Get dashboard statistics */
+  async getStats() {
+    return this._fetch('/api/stats');
+  }
+
+  /** Get alerts */
+  async getAlerts({ resolved, limit } = {}) {
+    return this._fetch(`/api/alerts${this._qs({ resolved, limit })}`);
+  }
+
+  // ─── Reviews ───────────────────────────────────────────────
+
+  /** Get reviews for a specific PR */
+  async getReviews(prId) {
+    return this._fetch(`/api/reviews/${prId}`);
+  }
+
+  // ─── Queues ────────────────────────────────────────────────
+
+  /** Get ready-to-merge PRs */
+  async getReadyToMerge({ limit } = {}) {
+    return this._fetch(`/api/queues/ready-to-merge${this._qs({ limit })}`);
+  }
+
+  /** Get action-state queue */
+  async getActionState({ limit } = {}) {
+    return this._fetch(`/api/queues/action-state${this._qs({ limit })}`);
+  }
+
+  // ─── Maintainers & Contributors ───────────────────────────
+
+  /** Get maintainer rankings */
+  async getMaintainers() {
+    return this._fetch('/api/maintainers');
+  }
+
+  /** Get contributor stats */
+  async getContributors({ limit } = {}) {
+    return this._fetch(`/api/contributors${this._qs({ limit })}`);
+  }
+
+  // ─── Low-Hanging Fruit & Triage ──────────────────────────
+
+  /** Get low-hanging fruit PRs scored for easy wins */
+  async getLowHangingFruit({ limit } = {}) {
+    return this._fetch(`/api/low-hanging-fruit${this._qs({ limit })}`);
+  }
+
+  /** Get bot triage recommendations for a PR */
+  async getBotTriage(prId) {
+    return this._fetch(`/api/bot-review/triage/${prId}`);
+  }
+
+  // ─── Pick / Claim PRs (requires prs:write) ─────────────
+
+  /** Claim a PR for triage/review */
+  async pickPR(id) {
+    return this._fetch(`/api/pick/${id}`, { method: 'POST' });
+  }
+
+  /** Release a claimed PR */
+  async unpickPR(id) {
+    return this._fetch(`/api/pick/${id}`, { method: 'DELETE' });
+  }
+
+  /** Resolve an alert */
+  async resolveAlert(id) {
+    return this._fetch(`/api/alerts/${id}/resolve`, { method: 'PUT' });
+  }
+
+  /** Update PR candidate lifecycle status */
+  async updateCandidateStatus(id, status, reason) {
+    return this._fetch(`/api/candidates/${id}/status`, {
+      method: 'POST',
+      body: JSON.stringify({ status, reason }),
+    });
+  }
+
+  // ─── CI & Bot Review ──────────────────────────────────────
+
+  /** Get CI check snapshot for a PR */
+  async getCIChecks(prId) {
+    return this._fetch(`/api/ci-checks/${prId}`);
+  }
+
+  /** Get bot review comments for a PR */
+  async getBotReviews(prId) {
+    return this._fetch(`/api/bot-review/${prId}`);
+  }
+
+  /** Sync bot comments from GitHub for a PR (requires ci:write) */
+  async syncBotComments(prId) {
+    return this._fetch(`/api/bot-review/sync/${prId}`, { method: 'POST' });
+  }
+
+  /** Classify a bot comment (requires ci:write) */
+  async classifyBotComment(commentId, classification) {
+    return this._fetch(`/api/bot-review/classify/${commentId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ classification }),
+    });
+  }
+
+  /** Start a PR test run (requires ci:write) */
+  async startPRTest(prId) {
+    return this._fetch(`/api/pr-test/${prId}/start`, { method: 'POST' });
+  }
+
+  /** Cancel a PR test run (requires ci:write) */
+  async cancelPRTest(prId) {
+    return this._fetch(`/api/pr-test/${prId}/cancel`, { method: 'DELETE' });
+  }
+
+  // ─── Agent Messages ───────────────────────────────────────
+
+  /** Get unread messages */
+  async getMessages({ thread_id, include_read } = {}) {
+    return this._fetch(`/api/agent/messages${this._qs({ thread_id, include_read })}`);
+  }
+
+  /** Send a message to another agent */
+  async sendMessage(to_agent, subject, body, { message_type, thread_id } = {}) {
+    return this._fetch('/api/agent/messages', {
+      method: 'POST',
+      body: JSON.stringify({ to_agent, subject, body, message_type, thread_id }),
+    });
+  }
+
+  /** Mark a message as read */
+  async markRead(messageId) {
+    return this._fetch(`/api/agent/messages/${messageId}/read`, { method: 'PUT' });
+  }
+
+  // ─── Sync ───────────────────────────────────────────────────
+
+  /** Trigger a GitHub data sync (requires sync:trigger scope) */
+  async triggerSync() {
+    return this._fetch('/api/sync/trigger', { method: 'POST' });
+  }
+
+  /** Check sync progress */
+  async getSyncStatus() {
+    return this._fetch('/api/sync/status');
+  }
+
+  // ─── Domain Context ───────────────────────────────────────
+
+  /** Get domain context for a PR */
+  async getDomainContext(prId) {
+    return this._fetch(`/api/domain-context/${prId}`);
+  }
+
+  /** Get related merged PRs */
+  async getRelatedMerged(prId) {
+    return this._fetch(`/api/domain-context/${prId}/related`);
+  }
+}

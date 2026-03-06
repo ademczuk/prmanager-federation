@@ -1,0 +1,835 @@
+openapi: 3.0.3
+info:
+  title: PRmanager Federation API
+  description: |
+    API for agent-to-agent communication between PRmanager (Andrew) and GH Search Tool (Will).
+    Part of the openclaw/openclaw PR intelligence platform.
+  version: "1.0.0"
+  contact:
+    name: Andrew (PRmanager)
+
+servers:
+  - url: https://prmanager.example.net
+    description: Production (via Tailscale Funnel)
+  - url: http://localhost:3099
+    description: Local development
+
+security:
+  - BearerToken: []
+
+components:
+  securitySchemes:
+    BearerToken:
+      type: http
+      scheme: bearer
+      description: |
+        Raw API token sent over TLS. Server hashes (SHA-256) on receipt for DB lookup.
+        Standard API key pattern (Stripe, GitHub, etc.).
+
+  schemas:
+    PR:
+      type: object
+      properties:
+        id:
+          type: integer
+        number:
+          type: integer
+        title:
+          type: string
+        state:
+          type: string
+          enum: [open, closed, merged]
+        author:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        merge_readiness_score:
+          type: number
+        category:
+          type: string
+        labels:
+          type: array
+          items:
+            type: string
+
+    Issue:
+      type: object
+      properties:
+        id:
+          type: integer
+        number:
+          type: integer
+        title:
+          type: string
+        state:
+          type: string
+        author:
+          type: string
+        labels:
+          type: array
+          items:
+            type: string
+
+    AgentIdentity:
+      type: object
+      properties:
+        agent_id:
+          type: string
+        display_name:
+          type: string
+        scopes:
+          type: array
+          items:
+            type: string
+        auth_type:
+          type: string
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        from_agent:
+          type: string
+        to_agent:
+          type: string
+        subject:
+          type: string
+        body:
+          type: object
+        message_type:
+          type: string
+          enum: [info, request, response, alert]
+        thread_id:
+          type: string
+          format: uuid
+        is_read:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    SendMessageRequest:
+      type: object
+      required: [to_agent, subject, body]
+      properties:
+        to_agent:
+          type: string
+          description: Target agent ID (e.g. "andrew")
+        subject:
+          type: string
+        body:
+          type: object
+          description: Arbitrary JSON payload
+        message_type:
+          type: string
+          enum: [info, request, response, alert]
+          default: info
+        thread_id:
+          type: string
+          format: uuid
+          description: Reply to existing thread
+
+    Stats:
+      type: object
+      properties:
+        total_prs:
+          type: integer
+        open_prs:
+          type: integer
+        merged_today:
+          type: integer
+        avg_merge_time_hours:
+          type: number
+
+    CICheck:
+      type: object
+      properties:
+        pr_number:
+          type: integer
+        check_name:
+          type: string
+        status:
+          type: string
+        conclusion:
+          type: string
+        snapshot_at:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        required:
+          type: array
+          items:
+            type: string
+        have:
+          type: array
+          items:
+            type: string
+
+paths:
+  /api/agent/me:
+    get:
+      summary: Agent identity
+      description: Returns the authenticated agent's identity and scopes
+      tags: [Identity]
+      responses:
+        "200":
+          description: Agent identity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentIdentity"
+        "401":
+          description: Invalid or missing token
+
+  /api/prs:
+    get:
+      summary: List PRs
+      tags: [PRs]
+      parameters:
+        - name: state
+          in: query
+          schema:
+            type: string
+            enum: [open, closed, merged]
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: author
+          in: query
+          schema:
+            type: string
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [updated, created, merge_readiness]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: List of PRs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PR"
+
+  /api/prs/{id}:
+    get:
+      summary: PR details
+      tags: [PRs]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: PR details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PR"
+        "404":
+          description: PR not found
+
+  /api/prs/search:
+    get:
+      summary: Full-text PR search
+      tags: [PRs]
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Search query (trigram + GIN index)
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PR"
+
+  /api/issues:
+    get:
+      summary: List issues
+      tags: [Issues]
+      parameters:
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: label
+          in: query
+          schema:
+            type: string
+        - name: sort
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of issues
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Issue"
+
+  /api/stats:
+    get:
+      summary: Dashboard statistics
+      tags: [Dashboard]
+      responses:
+        "200":
+          description: Aggregate stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stats"
+
+  /api/alerts:
+    get:
+      summary: Active alerts
+      tags: [Dashboard]
+      parameters:
+        - name: resolved
+          in: query
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /api/reviews/{pr}:
+    get:
+      summary: PR reviews
+      tags: [Reviews]
+      parameters:
+        - name: pr
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Reviews for the PR
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /api/queues/ready-to-merge:
+    get:
+      summary: Merge-ready PRs
+      tags: [Queues]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: PRs ready to merge
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PR"
+
+  /api/queues/action-state:
+    get:
+      summary: Action state queue
+      tags: [Queues]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: PRs needing action
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /api/maintainers:
+    get:
+      summary: Maintainer rankings
+      tags: [People]
+      responses:
+        "200":
+          description: Ranked maintainers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /api/contributors:
+    get:
+      summary: Contributor stats
+      tags: [People]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Contributor statistics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /api/ci-checks/{pr}:
+    get:
+      summary: CI check snapshots
+      tags: [CI]
+      parameters:
+        - name: pr
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: CI checks for the PR
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CICheck"
+
+  /api/bot-review/{pr}:
+    get:
+      summary: Bot review comments
+      tags: [CI]
+      parameters:
+        - name: pr
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Bot review comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /api/agent/messages:
+    get:
+      summary: Get unread messages
+      tags: [Messages]
+      parameters:
+        - name: thread_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: include_read
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+    post:
+      summary: Send a message
+      tags: [Messages]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendMessageRequest"
+      responses:
+        "201":
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "400":
+          description: Missing required fields
+
+  /api/agent/messages/{id}/read:
+    put:
+      summary: Mark message as read
+      tags: [Messages]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Message marked read
+        "404":
+          description: Message not found
+
+  /api/low-hanging-fruit:
+    get:
+      summary: Low-hanging fruit PRs
+      description: Returns PRs scored 0-100 for easy wins (CI passing, approved, small, no conflicts)
+      tags: [Triage]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Scored PR candidates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        title:
+                          type: string
+                        author:
+                          type: string
+                        fruit_score:
+                          type: integer
+                          minimum: 0
+                          maximum: 100
+                        ci_status:
+                          type: string
+                        review_status:
+                          type: string
+                        next_action:
+                          type: string
+                        merge_readiness_score:
+                          type: integer
+                        ai_complexity:
+                          type: integer
+
+  /api/pick/{id}:
+    post:
+      summary: Claim a PR for triage
+      tags: [Triage]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: PR claimed
+        "404":
+          description: Issue not found
+        "403":
+          description: Missing prs:write scope
+    delete:
+      summary: Release a claimed PR
+      tags: [Triage]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: PR released
+        "404":
+          description: Issue not found
+
+  /api/bot-review/sync/{pr_id}:
+    post:
+      summary: Sync bot comments from GitHub
+      tags: [CI]
+      parameters:
+        - name: pr_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Sync result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  synced:
+                    type: integer
+                  total_comments:
+                    type: integer
+                  bot_originals:
+                    type: integer
+
+  /api/bot-review/classify/{comment_id}:
+    put:
+      summary: Classify a bot comment
+      tags: [CI]
+      parameters:
+        - name: comment_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [classification]
+              properties:
+                classification:
+                  type: string
+                  enum: [genuine_fix, false_positive, by_design, repeated_fp, acknowledged, reverted, bulk_dismissed]
+      responses:
+        "200":
+          description: Comment classified
+        "404":
+          description: Comment not found
+
+  /api/bot-review/triage/{pr_id}:
+    get:
+      summary: Bot triage recommendations for a PR
+      tags: [CI]
+      parameters:
+        - name: pr_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Triage recommendations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /api/pr-test/{id}/start:
+    post:
+      summary: Start a PR test run
+      tags: [CI]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Test started
+        "403":
+          description: Missing ci:write scope
+
+  /api/pr-test/{id}/cancel:
+    delete:
+      summary: Cancel a PR test run
+      tags: [CI]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Test cancelled
+
+  /v1/health:
+    get:
+      summary: Health check
+      tags: [Federation]
+      security: []
+      responses:
+        "200":
+          description: Service health
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [ok]
+                  agent:
+                    type: string
+                  version:
+                    type: string
+
+  /v1/search/context:
+    post:
+      summary: Cross-agent context search (MVP federation endpoint)
+      description: |
+        PRmanager sends PR context, GH Search Tool returns related historical items.
+        This is the MVP federation workflow — Will implements this on his side,
+        PRmanager calls it as a client.
+      tags: [Federation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [request_id, caller_agent, repository, query]
+              properties:
+                request_id:
+                  type: string
+                  format: uuid
+                caller_agent:
+                  type: string
+                  enum: [prmanager, gh-search]
+                repository:
+                  type: string
+                  example: openclaw/openclaw
+                pr_number:
+                  type: integer
+                query:
+                  type: string
+                  description: Semantic search query (PR title, description, or keywords)
+                context:
+                  type: object
+                  properties:
+                    files:
+                      type: array
+                      items:
+                        type: string
+                    commit_sha:
+                      type: string
+                    branch:
+                      type: string
+                top_k:
+                  type: integer
+                  default: 5
+                deadline_ms:
+                  type: integer
+                  default: 10000
+      responses:
+        "200":
+          description: Search results (inline, < 10s)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum: [ok, partial, error]
+                  summary:
+                    type: string
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum: [pr, issue, commit, file, discussion]
+                        id:
+                          type: string
+                        url:
+                          type: string
+                          format: uri
+                        title:
+                          type: string
+                        score:
+                          type: number
+                          minimum: 0
+                          maximum: 1
+                        snippet:
+                          type: string
+                        reason:
+                          type: string
+        "202":
+          description: Accepted (long-running, callback will be used)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id:
+                    type: string
+                  status:
+                    type: string
+                    enum: [accepted]
+                  estimated_ms:
+                    type: integer
