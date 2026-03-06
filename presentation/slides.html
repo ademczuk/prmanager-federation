@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Two Agents, One Repo — Vienna AI Engineering</title>
+<title>Don't Hack Me, Bro — Vienna AI Engineering</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -19,6 +19,7 @@
     --accent-green: #10b981;
     --accent-orange: #f59e0b;
     --accent-pink: #ec4899;
+    --accent-red: #ef4444;
     --text-primary: #f1f5f9;
     --text-secondary: #94a3b8;
     --text-muted: #64748b;
@@ -137,11 +138,17 @@
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+  .text-gradient-red {
+    background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
   .text-cyan    { color: var(--accent-cyan); }
   .text-blue    { color: var(--accent-blue); }
   .text-green   { color: var(--accent-green); }
   .text-orange  { color: var(--accent-orange); }
   .text-pink    { color: var(--accent-pink); }
+  .text-red     { color: var(--accent-red); }
   .text-electric{ color: var(--accent-electric); }
   .text-muted   { color: var(--text-secondary); }
   .text-dim     { color: var(--text-muted); }
@@ -166,6 +173,8 @@
   .badge-blue  { background: rgba(59,130,246,0.15); color: var(--accent-blue); border: 1px solid rgba(59,130,246,0.3); }
   .badge-cyan  { background: rgba(6,182,212,0.15); color: var(--accent-cyan); border: 1px solid rgba(6,182,212,0.3); }
   .badge-green { background: rgba(16,185,129,0.15); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.3); }
+  .badge-red   { background: rgba(239,68,68,0.15); color: var(--accent-red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-orange{ background: rgba(245,158,11,0.15); color: var(--accent-orange); border: 1px solid rgba(245,158,11,0.3); }
 
   .divider {
     width: 80px; height: 3px; border-radius: 2px;
@@ -311,6 +320,46 @@
     50% { opacity: 0.7; box-shadow: 0 0 0 8px rgba(16,185,129,0); }
   }
 
+  /* ---- quote block ---- */
+  .quote-block {
+    background: var(--bg-card);
+    border-left: 3px solid var(--accent-red);
+    border-radius: 0 12px 12px 0;
+    padding: clamp(0.8rem, 1.5vw, 1.5rem) clamp(1rem, 2vw, 2rem);
+    max-width: 800px;
+    width: 100%;
+  }
+  .quote-block.green { border-left-color: var(--accent-green); }
+
+  /* ---- vs block ---- */
+  .vs-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1rem, 3vw, 3rem);
+    width: 100%;
+    max-width: 900px;
+  }
+  .vs-box {
+    background: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: clamp(1rem, 2vw, 2rem);
+    text-align: center;
+    flex: 1;
+    max-width: 350px;
+  }
+  .vs-box.dead {
+    opacity: 0.5;
+    text-decoration: line-through;
+    border-color: rgba(239,68,68,0.3);
+  }
+  .vs-label {
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 900;
+  }
+  .strikethrough { text-decoration: line-through; opacity: 0.4; }
+
   /* ---- links ---- */
   a, a:visited {
     color: var(--accent-cyan);
@@ -333,10 +382,13 @@
 
   <!-- ============ SLIDE 1: TITLE ============ -->
   <div class="slide active" data-slide="1">
-    <span class="badge badge-cyan mb-2">Lightning Talk &mdash; 7 min</span>
-    <h1 class="mega text-gradient text-center">Two Agents, One Repo</h1>
+    <span class="badge badge-red mb-2">Lightning Talk &mdash; 7 min</span>
+    <h1 class="mega text-center" style="line-height:1.05;">
+      <span class="text-gradient-red">Don't Hack Me,</span><br>
+      <span class="text-gradient">Bro.</span>
+    </h1>
     <div class="divider mt-2"></div>
-    <p class="mid text-center mt-1" style="color:var(--text-secondary);">Agent-to-Agent PR Triage for OpenClaw</p>
+    <p class="mid text-center mt-1" style="color:var(--text-secondary);">Agent-to-Agent Security for OpenClaw</p>
     <div class="mt-4" style="text-align:center;">
       <p class="body"><strong>Andrew Demczuk</strong></p>
       <p class="small text-muted mt-1">Vienna AI Engineering &nbsp;&bull;&nbsp; March 10, 2026</p>
@@ -365,11 +417,11 @@
     <h2 class="big text-center">My Agent's Brain</h2>
     <div class="stat-grid mt-3">
       <div class="stat-block">
-        <div class="stat-num text-gradient">48</div>
+        <div class="stat-num text-gradient">80</div>
         <div class="stat-label">MCP Tools</div>
       </div>
       <div class="stat-block">
-        <div class="stat-num text-gradient">27</div>
+        <div class="stat-num text-gradient">31</div>
         <div class="stat-label">PostgreSQL Tables</div>
       </div>
       <div class="stat-block">
@@ -421,56 +473,57 @@
     </p>
   </div>
 
-  <!-- ============ SLIDE 5: WORKFLOW ============ -->
+  <!-- ============ SLIDE 5: SaaS IS DEAD ============ -->
   <div class="slide" data-slide="5">
-    <span class="badge badge-blue mb-2">Live Workflow</span>
-    <h2 class="big text-center mb-2">What the Agents Do</h2>
-    <div class="pipeline mt-1">
-      <div class="pipe-step">
-        <div class="pipe-num" style="background:rgba(59,130,246,0.2); color:var(--accent-blue);">1</div>
-        <div>
-          <div class="pipe-label text-blue">Discover</div>
-          <div class="pipe-desc">Low-hanging fruit PRs &mdash; scored 0&ndash;100</div>
-        </div>
+    <span class="badge badge-orange mb-2">The New Economics</span>
+    <h2 class="big text-center mb-2">SaaS is <span class="strikethrough">Dead</span> Copyable</h2>
+    <div class="vs-container mt-2">
+      <div class="vs-box dead">
+        <div class="vs-label text-red">&euro;100<span class="small text-muted">/yr</span></div>
+        <div class="body mt-1" style="color:var(--text-secondary);">git-tower.com</div>
+        <div class="small text-dim mt-1">GUI git client</div>
       </div>
-      <div class="pipe-step">
-        <div class="pipe-num" style="background:rgba(129,140,248,0.2); color:var(--accent-electric);">2</div>
-        <div>
-          <div class="pipe-label text-electric">Pick</div>
-          <div class="pipe-desc">Claim PRs so agents don't double-handle</div>
-        </div>
-      </div>
-      <div class="pipe-step">
-        <div class="pipe-num" style="background:rgba(6,182,212,0.2); color:var(--accent-cyan);">3</div>
-        <div>
-          <div class="pipe-label text-cyan">Triage</div>
-          <div class="pipe-desc">Sync bot comments, classify false positives</div>
-        </div>
-      </div>
-      <div class="pipe-step">
-        <div class="pipe-num" style="background:rgba(16,185,129,0.2); color:var(--accent-green);">4</div>
-        <div>
-          <div class="pipe-label text-green">Report</div>
-          <div class="pipe-desc">Structured summary to other agent</div>
-        </div>
-      </div>
-      <div class="pipe-step">
-        <div class="pipe-num" style="background:rgba(245,158,11,0.2); color:var(--accent-orange);">5</div>
-        <div>
-          <div class="pipe-label text-orange">Release</div>
-          <div class="pipe-desc">Unlock PR for next agent</div>
-        </div>
+      <div style="font-size:clamp(1.5rem,3vw,2.5rem); color:var(--accent-orange); font-weight:900;">vs</div>
+      <div class="vs-box" style="border-color:rgba(16,185,129,0.3);">
+        <div class="vs-label text-green">30<span class="small text-muted"> min</span></div>
+        <div class="body mt-1" style="color:var(--text-secondary);">My agent cloned it</div>
+        <div class="small text-green mt-1">+ improved it</div>
       </div>
     </div>
-    <p class="small text-center mt-2">
-      <span class="pulse-dot"></span>
-      <span class="text-green mono">Running right now</span>
-      <span class="text-muted"> against the real openclaw repo</span>
+    <div class="mt-3 text-center">
+      <p class="mid">Welcome to <strong class="text-gradient-warm">AaaS</strong></p>
+      <p class="body text-muted mt-1">Agents as a Service</p>
+      <p class="small text-dim mt-2" style="font-style:italic;">
+        Peter says OpenClaw &ldquo;smells like a clanker.&rdquo;<br>
+        This smells like <strong class="text-orange">AaaS.</strong>
+      </p>
+    </div>
+  </div>
+
+  <!-- ============ SLIDE 6: THE ANTI-SYCOPHANT ============ -->
+  <div class="slide" data-slide="6">
+    <span class="badge badge-red mb-2">The Anti-Sycophant</span>
+    <h2 class="big text-center mb-2">Stop Telling Me<br>I'm <span class="text-gradient-warm">Absolutely Right</span></h2>
+    <div class="quote-block mt-2">
+      <p class="mono small text-red" style="margin-bottom:0.5em;">QwQ-32B &mdash; /brutal red team</p>
+      <p class="body" style="color:var(--text-primary);">
+        &ldquo;Your auth middleware has three race conditions, your rate limiter leaks memory under load, and this endpoint is an injection vector. <strong class="text-red">MAJOR_REFACTOR.</strong>&rdquo;
+      </p>
+    </div>
+    <div class="quote-block green mt-2">
+      <p class="mono small text-green" style="margin-bottom:0.5em;">Claude / GPT / Gemini &mdash; the usual</p>
+      <p class="body" style="color:var(--text-primary);">
+        &ldquo;Great work! This looks really solid. Just a minor suggestion&hellip;&rdquo;
+      </p>
+    </div>
+    <p class="body text-center mt-3" style="color:var(--text-secondary);">
+      I run a <strong class="text-red">32B red team model</strong> that tells me what's actually wrong.<br>
+      <span class="small text-dim">Because &ldquo;looks great!&rdquo; doesn't survive production.</span>
     </p>
   </div>
 
-  <!-- ============ SLIDE 6: THE PUNCHLINE ============ -->
-  <div class="slide" data-slide="6">
+  <!-- ============ SLIDE 7: THE PUNCHLINE ============ -->
+  <div class="slide" data-slide="7">
     <span class="badge badge-cyan mb-2">The Punchline</span>
     <h2 class="big text-center" style="line-height:1.15;">
       <span class="text-gradient-warm">AI agents</span> maintaining<br>the <span class="text-gradient">AI agent</span>
@@ -482,26 +535,31 @@
       <span class="pr-tag">#32311</span>
     </div>
     <p class="small text-muted text-center mt-1">Gateway routing &bull; Test infra &bull; Webchat fixes</p>
-    <div class="mt-3 text-center">
-      <p class="body">
-        <span class="text-dim">Federation SDK:</span><br>
-        <a href="https://github.com/ademczuk/prmanager-federation" class="mono" style="font-size:clamp(0.8rem,1.4vw,1.1rem);">github.com/ademczuk/prmanager-federation</a>
-      </p>
-    </div>
+    <p class="body text-center mt-3" style="color:var(--text-secondary);">
+      &ldquo;I can build that $1M app&hellip;<br>
+      <strong class="text-gradient-warm">for $2M in API tokens.&rdquo;</strong>
+    </p>
+    <p class="small text-dim text-center mt-2" style="font-style:italic;">
+      &mdash; every AI developer, eventually
+    </p>
   </div>
 
-  <!-- ============ SLIDE 7: END ============ -->
-  <div class="slide" data-slide="7">
-    <h1 class="mega text-gradient text-center">Thank you</h1>
+  <!-- ============ SLIDE 8: END ============ -->
+  <div class="slide" data-slide="8">
+    <h1 class="mega text-gradient text-center">Don't hack me.</h1>
     <div class="divider mt-3"></div>
     <div class="mt-4 text-center">
       <p class="body">
         <span class="text-muted">GitHub:</span>&nbsp;
         <a href="https://github.com/ademczuk" class="mono">github.com/ademczuk</a>
       </p>
-      <p class="mid text-center mt-3" style="color:var(--text-secondary);">
-        Want to connect your agent?<br>
-        <strong class="text-cyan">Let's talk.</strong>
+      <p class="body mt-1">
+        <span class="text-muted">Slides:</span>&nbsp;
+        <a href="https://ademczuk.github.io/prmanager-federation/presentation/slides.html" class="mono" style="font-size:clamp(0.7rem,1.1vw,0.9rem);">ademczuk.github.io/prmanager-federation</a>
+      </p>
+      <p class="body mt-1">
+        <span class="text-muted">Federation SDK:</span>&nbsp;
+        <a href="https://github.com/ademczuk/prmanager-federation" class="mono" style="font-size:clamp(0.7rem,1.1vw,0.9rem);">github.com/ademczuk/prmanager-federation</a>
       </p>
     </div>
     <p class="small text-dim text-center mt-4">Andrew Demczuk &nbsp;&bull;&nbsp; Vienna AI Engineering &nbsp;&bull;&nbsp; 2026</p>
@@ -556,7 +614,6 @@
     oldSlide.classList.add(goingForward ? 'exiting-left' : 'exiting-right');
 
     // Enter new slide
-    // First position it offscreen on the correct side (skip transition)
     newSlide.style.transition = 'none';
     newSlide.style.opacity = '0';
     newSlide.style.transform = goingForward ? 'translateX(40px)' : 'translateX(-40px)';
