@@ -131,8 +131,8 @@ export class PRManagerClient {
   // ─── Low-Hanging Fruit & Triage ──────────────────────────
 
   /** Get low-hanging fruit PRs scored for easy wins. Returns { data: [...] } */
-  async getLowHangingFruit({ limit } = {}) {
-    return this._fetch(`/api/low-hanging-fruit${this._qs({ limit })}`);
+  async getLowHangingFruit({ limit, exclude_triaged_days } = {}) {
+    return this._fetch(`/api/low-hanging-fruit${this._qs({ limit, exclude_triaged_days })}`);
   }
 
   /** Get bot triage recommendations for a PR */
@@ -150,6 +150,19 @@ export class PRManagerClient {
   /** Release a claimed PR */
   async unpickPR(id) {
     return this._fetch(`/api/prs/${id}/pick`, { method: 'DELETE' });
+  }
+
+  /** Record triage (permanent breadcrumb — survives unpick). Returns { data: { id, title, triaged_by, triaged_at, triage_status } } */
+  async triagePR(id, status = 'triaged') {
+    return this._fetch(`/api/prs/${id}/triage`, {
+      method: 'POST',
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  /** Get triage history. Returns { data: [...], count: N } */
+  async getTriageHistory({ agent_id, since, limit } = {}) {
+    return this._fetch(`/api/prs/triage-history${this._qs({ agent_id, since, limit })}`);
   }
 
   /** Resolve an alert */
@@ -203,8 +216,8 @@ export class PRManagerClient {
   // ─── Agent Messages ───────────────────────────────────────
 
   /** Get messages. Returns { messages: [...], count: N } */
-  async getMessages({ thread_id, include_read } = {}) {
-    return this._fetch(`/api/agent/messages${this._qs({ thread_id, include_read })}`);
+  async getMessages({ thread_id, include_read, from_date } = {}) {
+    return this._fetch(`/api/agent/messages${this._qs({ thread_id, include_read, from_date })}`);
   }
 
   /** Send a message to another agent */

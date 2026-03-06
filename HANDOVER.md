@@ -63,14 +63,29 @@ Standard API key auth (same as Stripe, GitHub):
 
 ---
 
-## Daily Triage Workflow (Your Primary Use Case)
+## Daily Triage Workflow v2 (Your Primary Use Case)
 
 This is the recommended workflow for your agent. See `examples/daily-triage.js` for runnable code.
 
-### Step 1: Discover Low-Hanging Fruit
+**Key feature:** Triage state is persistent. Running the workflow twice picks DIFFERENT PRs because previously-triaged PRs are excluded for 7 days.
+
+### Step 0.5: Check Triage History
 
 ```javascript
-const lhf = await client.getLowHangingFruit({ limit: 10 });
+// What have I already triaged recently?
+const since = new Date(Date.now() - 7 * 86400_000).toISOString();
+const history = await client.getTriageHistory({ agent_id: 'will', since });
+// Returns { data: [...], count: N }
+// Each entry: { id, title, triaged_by, triaged_at, triage_status, fruit_score, ... }
+```
+
+### Step 1: Discover Low-Hanging Fruit (excluding recently triaged)
+
+```javascript
+const lhf = await client.getLowHangingFruit({
+  limit: 10,
+  exclude_triaged_days: 7,  // NEW: skip PRs triaged in last 7 days
+});
 // Returns PRs scored 0-100 with: fruit_score, ci_status, review_status,
 // next_action, ai_complexity, merge_readiness_score
 ```
@@ -90,7 +105,7 @@ PRs with `fruit_score >= 80` and `next_action: "ready_to_merge"` are your target
 // Claim PRs so no other agent double-processes them
 await client.pickPR(prId);
 
-// Release when done
+// Release when done (triage record survives unpick)
 await client.unpickPR(prId);
 ```
 
@@ -110,7 +125,7 @@ await client.classifyBotComment(commentId, 'false_positive');
 //        acknowledged, reverted, bulk_dismissed
 ```
 
-### Step 4: Check Merge Readiness
+### Step 4: Check CI & Merge Readiness
 
 ```javascript
 const ready = await client.getReadyToMerge({ limit: 10 });
@@ -121,15 +136,34 @@ const actionState = await client.getActionState();
 //                           needs_revision, blocked
 ```
 
-### Step 5: Report to Andrew
+### Step 5: Record Triage (permanent breadcrumb)
+
+```javascript
+// Record BEFORE unpicking — this is the persistent state
+await client.triagePR(prId);
+// Returns { data: { id, title, triaged_by, triaged_at, triage_status } }
+
+// Optional: record with a custom status
+await client.triagePR(prId, 'needs_maintainer');
+```
+
+### Step 6: Report to Andrew
 
 ```javascript
 await client.sendMessage('andrew', 'Daily triage complete', {
   picked: [{ id: 33608, title: '...', score: 89 }],
   merge_ready_count: 12,
   bot_comments_synced: 5,
-  recommendation: 'Top 3 PRs triaged. #33608 is merge-ready.',
+  previously_triaged: 5,
+  recommendation: 'Top 3 fresh PRs triaged. 5 skipped (already done). #33608 is merge-ready.',
 });
+```
+
+### Step 7: Unpick (release transient lock — triage record survives)
+
+```javascript
+await client.unpickPR(prId);
+// Pick is cleared, but triaged_by/triaged_at/triage_status persist
 ```
 
 ### Full Example
@@ -138,7 +172,15 @@ await client.sendMessage('andrew', 'Daily triage complete', {
 node examples/daily-triage.js
 ```
 
-This runs all 5 steps automatically and sends a structured summary to Andrew.
+This runs all 8 steps automatically and sends a structured summary to Andrew.
+
+### Messages with Date Filter
+
+```javascript
+// Get messages from the last 24 hours (useful for checking recent reports)
+const since = new Date(Date.now() - 86400_000).toISOString();
+const msgs = await client.getMessages({ from_date: since, include_read: true });
+```
 
 ---
 
@@ -286,6 +328,8 @@ await client.triggerSync();
 | `GET` | `/api/alerts` | stats:read | Active alerts |
 | `POST` | `/api/pick/:id` | prs:write | Claim a PR for triage |
 | `DELETE` | `/api/pick/:id` | prs:write | Release a claimed PR |
+| `POST` | `/api/prs/:id/triage` | prs:write | Record persistent triage (survives unpick) |
+| `GET` | `/api/prs/triage-history` | prs:read | Query triage history (agent_id, since, limit) |
 | `PUT` | `/api/alerts/:id/resolve` | prs:write | Resolve an alert |
 | `POST` | `/api/bot-review/sync/:pr` | ci:write | Sync bot comments from GitHub |
 | `PUT` | `/api/bot-review/classify/:id` | ci:write | Classify a bot comment |

@@ -498,6 +498,12 @@ paths:
           schema:
             type: boolean
             default: false
+        - name: from_date
+          in: query
+          description: ISO 8601 timestamp — only return messages created after this date
+          schema:
+            type: string
+            format: date-time
       responses:
         "200":
           description: List of messages
@@ -554,6 +560,12 @@ paths:
           schema:
             type: integer
             default: 10
+        - name: exclude_triaged_days
+          in: query
+          description: Exclude PRs triaged within this many days
+          schema:
+            type: integer
+            minimum: 0
       responses:
         "200":
           description: Scored PR candidates
@@ -587,6 +599,110 @@ paths:
                           type: integer
                         ai_complexity:
                           type: integer
+
+  /api/prs/{id}/triage:
+    post:
+      summary: Record triage (persistent breadcrumb)
+      description: Sets triaged_by, triaged_at, triage_status on a PR. Survives unpick cycles.
+      tags: [Triage]
+      security:
+        - BearerToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  default: triaged
+                  description: Triage status (e.g. triaged, needs_maintainer)
+      responses:
+        "200":
+          description: Triage recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      title:
+                        type: string
+                      triaged_by:
+                        type: string
+                      triaged_at:
+                        type: string
+                        format: date-time
+                      triage_status:
+                        type: string
+        "404":
+          description: PR not found
+
+  /api/prs/triage-history:
+    get:
+      summary: Query triage history
+      description: Returns PRs that have been triaged, with optional agent and date filters.
+      tags: [Triage]
+      security:
+        - BearerToken: []
+      parameters:
+        - name: agent_id
+          in: query
+          description: Filter by triaging agent
+          schema:
+            type: string
+        - name: since
+          in: query
+          description: ISO 8601 timestamp — only return PRs triaged after this date
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 200
+      responses:
+        "200":
+          description: Triage history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        title:
+                          type: string
+                        triaged_by:
+                          type: string
+                        triaged_at:
+                          type: string
+                          format: date-time
+                        triage_status:
+                          type: string
+                        fruit_score:
+                          type: integer
+                        ci_status:
+                          type: string
+                  count:
+                    type: integer
 
   /api/prs/{id}/pick:
     post:

@@ -1,9 +1,12 @@
 /**
- * Daily PR Triage Workflow
+ * Daily PR Triage Workflow (v2 — with persistent triage state)
  *
- * Discovers low-hanging fruit PRs, picks the top candidates,
- * syncs and triages bot comments, checks merge readiness,
- * and sends a structured summary to Andrew.
+ * Discovers low-hanging fruit PRs, excludes recently-triaged ones,
+ * picks the top candidates, syncs bot comments, checks merge readiness,
+ * records permanent triage breadcrumbs, and sends a structured summary.
+ *
+ * Key difference from v1: triage records survive unpick cycles.
+ * Running this twice in a row picks DIFFERENT PRs.
  *
  * Usage: node examples/daily-triage.js
  */
@@ -11,31 +14,51 @@
 import 'dotenv/config';
 import { PRManagerClient } from '../prmanager-client.js';
 
+const TRIAGE_LOOKBACK_DAYS = 7;
+const PICK_COUNT = 3;
+
 const client = new PRManagerClient(
   process.env.PRMANAGER_URL,
   process.env.PRMANAGER_TOKEN
 );
 
 async function dailyTriage() {
-  console.log('=== Daily PR Triage ===\n');
+  console.log('=== Daily PR Triage (v2) ===\n');
 
   // Step 0: Verify identity
   const me = await client.whoami();
   console.log(`Agent: ${me.display_name} (${me.agent_id})`);
   console.log(`Scopes: ${me.scopes.join(', ')}\n`);
 
-  // Step 1: Discover low-hanging fruit
+  // Step 0.5: Fetch recent triage history to build exclusion set
+  console.log('--- Step 0.5: Checking triage history ---');
+  const since = new Date(Date.now() - TRIAGE_LOOKBACK_DAYS * 86400_000).toISOString();
+  const history = await client.getTriageHistory({ agent_id: me.agent_id, since });
+  const recentlyTriaged = new Set((history.data ?? []).map(pr => pr.id));
+  console.log(`${recentlyTriaged.size} PRs triaged in last ${TRIAGE_LOOKBACK_DAYS} days\n`);
+
+  // Step 1: Discover low-hanging fruit (server-side excludes recently triaged)
   console.log('--- Step 1: Discovering low-hanging fruit ---');
-  const lhf = await client.getLowHangingFruit({ limit: 10 });
-  const fruits = lhf.data ?? [];
-  console.log(`Found ${fruits.length} candidates\n`);
+  const lhf = await client.getLowHangingFruit({
+    limit: 10 + recentlyTriaged.size,  // over-fetch to compensate for client-side filter
+    exclude_triaged_days: TRIAGE_LOOKBACK_DAYS,
+  });
+  let fruits = lhf.data ?? [];
+
+  // Step 1.5: Belt-and-suspenders client-side filter
+  const beforeFilter = fruits.length;
+  fruits = fruits.filter(pr => !recentlyTriaged.has(pr.id));
+  if (beforeFilter !== fruits.length) {
+    console.log(`  Filtered ${beforeFilter - fruits.length} recently-triaged PRs client-side`);
+  }
+  console.log(`Found ${fruits.length} fresh candidates\n`);
 
   if (!fruits.length) {
-    await client.sendMessage('andrew', 'Daily triage: no low-hanging fruit', {
+    await client.sendMessage('andrew', 'Daily triage: no fresh low-hanging fruit', {
       timestamp: new Date().toISOString(),
-      result: 'No PRs scoring above threshold',
+      result: `No PRs scoring above threshold (${recentlyTriaged.size} already triaged in last ${TRIAGE_LOOKBACK_DAYS} days)`,
     });
-    console.log('No candidates found. Sent empty report.');
+    console.log('No fresh candidates found. Sent empty report.');
     return;
   }
 
@@ -45,9 +68,9 @@ async function dailyTriage() {
     console.log(`    CI: ${pr.ci_status} | Reviews: ${pr.review_status} | Action: ${pr.next_action}`);
   }
 
-  // Step 2: Pick top 3 for triage
-  console.log('\n--- Step 2: Picking top 3 PRs ---');
-  const toPick = fruits.slice(0, 3);
+  // Step 2: Pick top PRs for triage
+  console.log(`\n--- Step 2: Picking top ${PICK_COUNT} PRs ---`);
+  const toPick = fruits.slice(0, PICK_COUNT);
   const picked = [];
 
   for (const pr of toPick) {
@@ -93,16 +116,30 @@ async function dailyTriage() {
     }
   }
 
-  // Step 5: Get merge-ready queue for context
-  console.log('\n--- Step 5: Merge readiness ---');
+  // Step 5: Record triage (permanent breadcrumb — survives unpick)
+  console.log('\n--- Step 5: Recording triage ---');
+  for (const pr of picked) {
+    try {
+      const result = await client.triagePR(pr.id);
+      console.log(`  #${pr.id}: triaged by ${result.data.triaged_by} at ${result.data.triaged_at}`);
+    } catch (err) {
+      console.log(`  #${pr.id}: triage record failed — ${err.message}`);
+    }
+  }
+
+  // Step 6: Get merge-ready queue for context
+  console.log('\n--- Step 6: Merge readiness ---');
   const readyToMerge = await client.getReadyToMerge({ limit: 10 });
   const mergeCount = readyToMerge.count ?? readyToMerge.data?.length ?? 0;
   console.log(`${mergeCount} PRs ready to merge\n`);
 
-  // Step 6: Send summary to Andrew
-  console.log('--- Step 6: Sending summary ---');
+  // Step 7: Send summary to Andrew
+  console.log('--- Step 7: Sending summary ---');
   const summary = {
     timestamp: new Date().toISOString(),
+    triage_version: 2,
+    lookback_days: TRIAGE_LOOKBACK_DAYS,
+    previously_triaged: recentlyTriaged.size,
     low_hanging_fruit: fruits.slice(0, 5).map(pr => ({
       id: pr.id,
       title: pr.title,
@@ -119,20 +156,20 @@ async function dailyTriage() {
     ci_checks: ciResults,
     merge_ready_count: mergeCount,
     recommendation: picked.length > 0
-      ? `Top ${picked.length} PRs picked and triaged. ${mergeCount} total ready to merge.`
-      : 'No PRs picked — all candidates may already be claimed.',
+      ? `Top ${picked.length} fresh PRs triaged (${recentlyTriaged.size} excluded as already triaged). ${mergeCount} total ready to merge.`
+      : 'No fresh PRs to triage — all candidates were recently processed.',
   };
 
   await client.sendMessage(
     'andrew',
-    `Daily triage: ${picked.length} PRs picked, ${mergeCount} merge-ready`,
+    `Daily triage v2: ${picked.length} PRs triaged, ${recentlyTriaged.size} skipped, ${mergeCount} merge-ready`,
     summary
   );
 
   console.log('Summary sent to Andrew.');
 
-  // Step 7: Unpick PRs (cleanup)
-  console.log('\n--- Step 7: Releasing picks ---');
+  // Step 8: Unpick PRs (releases transient lock — triage record survives)
+  console.log('\n--- Step 8: Releasing picks ---');
   for (const pr of picked) {
     try {
       await client.unpickPR(pr.id);
