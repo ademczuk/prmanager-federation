@@ -10,7 +10,7 @@ info:
 
 servers:
   - url: https://prmanager.example.net
-    description: Production (via Tailscale Funnel)
+    description: Production (URL shared out-of-band)
   - url: http://localhost:3099
     description: Local development
 

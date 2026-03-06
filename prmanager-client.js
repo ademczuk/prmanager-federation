@@ -13,7 +13,7 @@
 
 export class PRManagerClient {
   /**
-   * @param {string} baseUrl - PRmanager API URL (e.g. https://prmanager.example.net)
+   * @param {string} baseUrl - PRmanager API URL (from PRMANAGER_URL env var)
    * @param {string} token - API token (sent as Bearer over TLS, server hashes for lookup)
    */
   constructor(baseUrl, token) {
