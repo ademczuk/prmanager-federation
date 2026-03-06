@@ -23,3 +23,6 @@ Thumbs.db
 
 # Delegation artifacts
 delegation-log.txt
+
+# One-time messages (contains token guidance)
+DISCORD-MESSAGE.md
