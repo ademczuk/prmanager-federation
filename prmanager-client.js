@@ -243,4 +243,55 @@ export class PRManagerClient {
   async getRelatedMerged(prId) {
     return this._fetch(`/api/domain-context/${prId}/related`);
   }
+
+  // ─── x.ai Proxy (Grok access without exposing the API key) ─
+
+  /**
+   * Call x.ai API through PRmanager's proxy.
+   * Will's agent gets Grok access without seeing Andrew's API key.
+   *
+   * @param {string} path - x.ai API path (e.g. '/v1/chat/completions')
+   * @param {object} body - Request body
+   * @param {object} [opts] - Additional fetch options
+   * @returns {Promise<object>} x.ai API response
+   *
+   * Example:
+   *   const resp = await client.xai('/v1/chat/completions', {
+   *     model: 'grok-3',
+   *     messages: [{ role: 'user', content: 'Summarize PR #33608' }],
+   *   });
+   */
+  async xai(path, body, opts = {}) {
+    return this._fetch(`/api/xai${path}`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      ...opts,
+    });
+  }
+
+  /**
+   * Chat with Grok through the proxy.
+   * Convenience wrapper for x.ai chat completions.
+   *
+   * @param {string} message - User message
+   * @param {object} [options] - { model, system, temperature, max_tokens }
+   * @returns {Promise<string>} Grok's response text
+   */
+  async grokChat(message, { model = 'grok-3-mini', system, temperature, max_tokens } = {}) {
+    const messages = [];
+    if (system) messages.push({ role: 'system', content: system });
+    messages.push({ role: 'user', content: message });
+
+    const body = { model, messages };
+    if (temperature !== undefined) body.temperature = temperature;
+    if (max_tokens !== undefined) body.max_tokens = max_tokens;
+
+    const resp = await this.xai('/v1/chat/completions', body);
+    return resp?.choices?.[0]?.message?.content || '';
+  }
+
+  /** List available x.ai models */
+  async xaiModels() {
+    return this._fetch('/api/xai/v1/models');
+  }
 }

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Two Agents, One Repo — Vienna AI Engineering</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-deep: #0a0e1a;
+    --bg-card: #111827;
+    --bg-card-alt: #1a2236;
+    --accent-blue: #3b82f6;
+    --accent-cyan: #06b6d4;
+    --accent-electric: #818cf8;
+    --accent-green: #10b981;
+    --accent-orange: #f59e0b;
+    --accent-pink: #ec4899;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --glow-blue: rgba(59, 130, 246, 0.3);
+    --glow-cyan: rgba(6, 182, 212, 0.25);
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---- slide engine ---- */
+  .deck { position: relative; width: 100%; height: 100%; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 4vh 6vw;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    pointer-events: none;
+    will-change: opacity, transform;
+  }
+  .slide.active {
+    opacity: 1; transform: translateX(0);
+    pointer-events: auto;
+  }
+  .slide.prev {
+    opacity: 0; transform: translateX(-40px);
+  }
+
+  /* ---- slide counter ---- */
+  #counter {
+    position: fixed; bottom: 2.2vh; right: 3vw;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(0.7rem, 1.2vw, 1rem);
+    color: var(--text-muted);
+    z-index: 100;
+    letter-spacing: 0.05em;
+  }
+
+  /* ---- progress bar ---- */
+  #progress {
+    position: fixed; top: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+    transition: width 0.4s ease;
+    z-index: 100;
+    box-shadow: 0 0 12px var(--glow-cyan);
+  }
+
+  /* ---- nav hint ---- */
+  #nav-hint {
+    position: fixed; bottom: 2.2vh; left: 3vw;
+    font-size: clamp(0.6rem, 1vw, 0.8rem);
+    color: var(--text-muted);
+    opacity: 0.5;
+    z-index: 100;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ---- background grid ---- */
+  .deck::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(59,130,246,0.04) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(6,182,212,0.04) 0%, transparent 50%),
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 60px 60px, 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ---- typography ---- */
+  .mega      { font-size: clamp(3rem, 8vw, 7rem); font-weight: 900; line-height: 1.05; letter-spacing: -0.03em; }
+  .big       { font-size: clamp(2rem, 5vw, 4.5rem); font-weight: 900; line-height: 1.1; letter-spacing: -0.02em; }
+  .mid       { font-size: clamp(1.2rem, 2.8vw, 2.4rem); font-weight: 700; line-height: 1.25; }
+  .body      { font-size: clamp(0.9rem, 1.8vw, 1.5rem); font-weight: 400; line-height: 1.6; }
+  .small     { font-size: clamp(0.7rem, 1.2vw, 1rem); line-height: 1.5; }
+  .mono      { font-family: 'JetBrains Mono', monospace; }
+
+  .text-gradient {
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .text-gradient-warm {
+    background: linear-gradient(135deg, var(--accent-orange), var(--accent-pink));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .text-cyan    { color: var(--accent-cyan); }
+  .text-blue    { color: var(--accent-blue); }
+  .text-green   { color: var(--accent-green); }
+  .text-orange  { color: var(--accent-orange); }
+  .text-pink    { color: var(--accent-pink); }
+  .text-electric{ color: var(--accent-electric); }
+  .text-muted   { color: var(--text-secondary); }
+  .text-dim     { color: var(--text-muted); }
+  .text-center  { text-align: center; }
+
+  .mt-1 { margin-top: 0.8vh; }
+  .mt-2 { margin-top: 1.8vh; }
+  .mt-3 { margin-top: 3vh; }
+  .mt-4 { margin-top: 4.5vh; }
+  .mb-2 { margin-bottom: 1.8vh; }
+
+  /* ---- components ---- */
+  .badge {
+    display: inline-block;
+    padding: 0.3em 0.9em;
+    border-radius: 999px;
+    font-size: clamp(0.65rem, 1vw, 0.85rem);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .badge-blue   { background: rgba(59,130,246,0.15); color: var(--accent-blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-cyan   { background: rgba(6,182,212,0.15); color: var(--accent-cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-green  { background: rgba(16,185,129,0.15); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.3); }
+
+  .divider {
+    width: 80px; height: 3px; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+    margin: 1.5vh auto;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: clamp(1rem, 2.5vw, 2rem);
+    box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+  }
+
+  .glow-border {
+    border: 1px solid rgba(59,130,246,0.25);
+    box-shadow: 0 0 25px rgba(59,130,246,0.08), inset 0 0 25px rgba(59,130,246,0.03);
+  }
+
+  /* ---- stat blocks ---- */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: clamp(0.8rem, 1.5vw, 1.5rem);
+    width: 100%;
+    max-width: 900px;
+  }
+  .stat-block {
+    background: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: clamp(0.8rem, 1.5vw, 1.5rem);
+    text-align: center;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .stat-block:hover {
+    border-color: rgba(59,130,246,0.3);
+    box-shadow: 0 0 20px rgba(59,130,246,0.1);
+  }
+  .stat-num {
+    font-size: clamp(1.8rem, 3.5vw, 3rem);
+    font-weight: 900;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: clamp(0.65rem, 1.1vw, 0.9rem);
+    color: var(--text-secondary);
+    margin-top: 0.4em;
+    font-weight: 600;
+  }
+
+  /* ---- architecture diagram ---- */
+  .arch-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(0.5rem, 2vw, 2rem);
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 1050px;
+  }
+  .arch-box {
+    background: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: clamp(0.8rem, 1.5vw, 1.5rem) clamp(1rem, 2vw, 2rem);
+    text-align: center;
+    min-width: 200px;
+    flex: 1;
+    max-width: 280px;
+  }
+  .arch-center {
+    background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(6,182,212,0.12));
+    border: 1px solid rgba(59,130,246,0.3);
+    box-shadow: 0 0 30px rgba(59,130,246,0.1);
+  }
+  .arch-arrow {
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    color: var(--accent-cyan);
+    flex-shrink: 0;
+  }
+
+  /* ---- pipeline ---- */
+  .pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.4rem, 1vh, 0.8rem);
+    width: 100%;
+    max-width: 800px;
+  }
+  .pipe-step {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.6rem, 1.2vw, 1.2rem);
+    background: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: clamp(0.5rem, 1vh, 0.9rem) clamp(0.8rem, 1.5vw, 1.5rem);
+    transition: border-color 0.3s, transform 0.2s;
+  }
+  .pipe-step:hover {
+    border-color: rgba(6,182,212,0.3);
+    transform: translateX(6px);
+  }
+  .pipe-num {
+    width: clamp(2rem, 3.5vw, 3rem);
+    height: clamp(2rem, 3.5vw, 3rem);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900;
+    font-size: clamp(0.8rem, 1.4vw, 1.2rem);
+    flex-shrink: 0;
+  }
+  .pipe-label {
+    font-weight: 700;
+    font-size: clamp(0.85rem, 1.5vw, 1.2rem);
+    white-space: nowrap;
+  }
+  .pipe-desc {
+    color: var(--text-secondary);
+    font-size: clamp(0.7rem, 1.2vw, 0.95rem);
+  }
+
+  /* ---- pr tags ---- */
+  .pr-tags {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .pr-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(0.65rem, 1.1vw, 0.9rem);
+    padding: 0.35em 0.8em;
+    border-radius: 8px;
+    background: rgba(16,185,129,0.12);
+    color: var(--accent-green);
+    border: 1px solid rgba(16,185,129,0.25);
+    font-weight: 600;
+  }
+
+  /* ---- pulsing dot ---- */
+  .pulse-dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    margin-right: 0.5em;
+    animation: pulse 2s ease-in-out infinite;
+    vertical-align: middle;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+  }
+
+  /* ---- floating particles ---- */
+  .particles {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .particle {
+    position: absolute;
+    width: 2px; height: 2px;
+    border-radius: 50%;
+    background: var(--accent-cyan);
+    opacity: 0;
+    animation: float-up linear infinite;
+  }
+  @keyframes float-up {
+    0%   { opacity: 0; transform: translateY(0) scale(0); }
+    10%  { opacity: 0.6; }
+    90%  { opacity: 0.1; }
+    100% { opacity: 0; transform: translateY(-100vh) scale(1); }
+  }
+
+  /* ---- big number animation ---- */
+  .count-up {
+    display: inline-block;
+  }
+
+  /* ---- links ---- */
+  a, a:visited {
+    color: var(--accent-cyan);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(6,182,212,0.3);
+    transition: border-color 0.2s;
+  }
+  a:hover { border-color: var(--accent-cyan); }
+
+  /* slide-specific tweaks */
+  .slide > * { position: relative; z-index: 2; }
+</style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+<div id="progress"></div>
+<div id="counter"></div>
+<div id="nav-hint"></div>
+
+<div class="deck">
+
+  <!-- ============ SLIDE 1: TITLE ============ -->
+  <div class="slide active" data-slide="1">
+    <span class="badge badge-cyan mb-2">Lightning Talk &mdash; 7 min</span>
+    <h1 class="mega text-gradient text-center">Two Agents, One Repo</h1>
+    <div class="divider mt-2"></div>
+    <p class="mid text-center mt-1" style="color:var(--text-secondary);">Agent-to-Agent PR Triage for OpenClaw</p>
+    <div class="mt-4" style="text-align:center;">
+      <p class="body"><strong>Andrew Demczuk</strong></p>
+      <p class="small text-muted mt-1">Vienna AI Engineering &nbsp;&bull;&nbsp; March 10, 2026</p>
+      <p class="small mt-2" style="color:var(--accent-green);">
+        <span class="mono">3 merged PRs</span> on <span class="mono">openclaw/openclaw</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ============ SLIDE 2: THE PROBLEM ============ -->
+  <div class="slide" data-slide="2">
+    <span class="badge badge-blue mb-2">The Problem</span>
+    <div class="mega text-gradient count-up" id="bignum" style="font-size:clamp(4rem,12vw,10rem);">7,083</div>
+    <p class="mid text-center mt-2">open PRs on <span class="mono text-cyan">openclaw/openclaw</span> right now</p>
+    <div class="divider mt-3"></div>
+    <p class="body text-muted text-center mt-2">A new one every <strong class="text-orange">2 minutes</strong></p>
+    <p class="body text-center mt-2" style="color:var(--text-secondary);">
+      GitHub shows you a list.<br>
+      <strong style="color:var(--text-primary);">You need a plan.</strong>
+    </p>
+  </div>
+
+  <!-- ============ SLIDE 3: PRMANAGER ============ -->
+  <div class="slide" data-slide="3">
+    <span class="badge badge-cyan mb-2">PRmanager</span>
+    <h2 class="big text-center">My Agent's Brain</h2>
+    <div class="stat-grid mt-3">
+      <div class="stat-block">
+        <div class="stat-num text-gradient">48</div>
+        <div class="stat-label">MCP Tools</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-num text-gradient">27</div>
+        <div class="stat-label">PostgreSQL Tables</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-num text-gradient">10</div>
+        <div class="stat-label">Dashboard Tabs</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-num text-gradient-warm">0&ndash;100</div>
+        <div class="stat-label">Merge Readiness Score</div>
+      </div>
+    </div>
+    <div class="mt-3 text-center">
+      <p class="mid">
+        <span class="mono text-muted">6,800 PRs</span>
+        <span class="text-dim">&nbsp;&rarr;&nbsp;</span>
+        <span class="mono text-green">12 merge-ready today</span>
+      </p>
+    </div>
+    <p class="small text-muted text-center mt-2">Built with <strong class="text-electric">Claude Code</strong> + <strong class="text-cyan">MCP</strong></p>
+  </div>
+
+  <!-- ============ SLIDE 4: THE FEDERATION ============ -->
+  <div class="slide" data-slide="4">
+    <span class="badge badge-green mb-2">The Federation</span>
+    <h2 class="big text-center mb-2">Two LLMs. One Protocol.</h2>
+    <div class="arch-container mt-2">
+      <div class="arch-box">
+        <div class="mid" style="font-size:clamp(1rem,2vw,1.6rem);">&#129302; Andrew</div>
+        <div class="small text-muted mt-1 mono">Claude Code</div>
+        <div class="small text-electric mt-1">PRmanager MCP</div>
+      </div>
+      <div class="arch-arrow">&rarr;</div>
+      <div class="arch-box arch-center">
+        <div class="mid text-gradient" style="font-size:clamp(1rem,2vw,1.6rem);">HTTPS API</div>
+        <div class="small mono mt-1" style="color:var(--accent-orange);">SHA-256 Auth</div>
+      </div>
+      <div class="arch-arrow">&larr;</div>
+      <div class="arch-box">
+        <div class="mid" style="font-size:clamp(1rem,2vw,1.6rem);">&#129302; Will</div>
+        <div class="small text-muted mt-1 mono">Codex CLI / GPT-5.4</div>
+        <div class="small text-pink mt-1">Federation SDK</div>
+      </div>
+    </div>
+    <p class="body text-center mt-3" style="color:var(--text-secondary);">
+      Same repo. Different LLMs. <strong class="text-cyan">No human intermediary.</strong>
+    </p>
+    <p class="small text-muted text-center mt-1">
+      Standard API key auth &mdash; same pattern as Stripe
+    </p>
+  </div>
+
+  <!-- ============ SLIDE 5: WORKFLOW ============ -->
+  <div class="slide" data-slide="5">
+    <span class="badge badge-blue mb-2">Live Workflow</span>
+    <h2 class="big text-center mb-2">What the Agents Do</h2>
+    <div class="pipeline mt-1">
+      <div class="pipe-step">
+        <div class="pipe-num" style="background:rgba(59,130,246,0.2); color:var(--accent-blue);">1</div>
+        <div>
+          <div class="pipe-label text-blue">Discover</div>
+          <div class="pipe-desc">Low-hanging fruit PRs &mdash; scored 0&ndash;100</div>
+        </div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num" style="background:rgba(129,140,248,0.2); color:var(--accent-electric);">2</div>
+        <div>
+          <div class="pipe-label text-electric">Pick</div>
+          <div class="pipe-desc">Claim PRs so agents don't double-handle</div>
+        </div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num" style="background:rgba(6,182,212,0.2); color:var(--accent-cyan);">3</div>
+        <div>
+          <div class="pipe-label text-cyan">Triage</div>
+          <div class="pipe-desc">Sync bot comments, classify false positives</div>
+        </div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num" style="background:rgba(16,185,129,0.2); color:var(--accent-green);">4</div>
+        <div>
+          <div class="pipe-label text-green">Report</div>
+          <div class="pipe-desc">Structured summary to other agent</div>
+        </div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num" style="background:rgba(245,158,11,0.2); color:var(--accent-orange);">5</div>
+        <div>
+          <div class="pipe-label text-orange">Release</div>
+          <div class="pipe-desc">Unlock PR for next agent</div>
+        </div>
+      </div>
+    </div>
+    <p class="small text-center mt-2">
+      <span class="pulse-dot"></span>
+      <span class="text-green mono">Running right now</span>
+      <span class="text-muted"> against the real openclaw repo</span>
+    </p>
+  </div>
+
+  <!-- ============ SLIDE 6: THE PUNCHLINE ============ -->
+  <div class="slide" data-slide="6">
+    <span class="badge badge-cyan mb-2">The Punchline</span>
+    <h2 class="big text-center" style="line-height:1.15;">
+      <span class="text-gradient-warm">AI agents</span> maintaining<br>the <span class="text-gradient">AI agent</span>
+    </h2>
+    <div class="divider mt-3"></div>
+    <div class="pr-tags mt-3">
+      <span class="pr-tag">#32128</span>
+      <span class="pr-tag">#32183</span>
+      <span class="pr-tag">#32311</span>
+    </div>
+    <p class="small text-muted text-center mt-1">Gateway routing &bull; Test infra &bull; Webchat fixes</p>
+    <div class="mt-3 text-center">
+      <p class="body">
+        <span class="text-dim">Federation SDK:</span><br>
+        <a href="https://github.com/ademczuk/prmanager-federation" class="mono" style="font-size:clamp(0.8rem,1.4vw,1.1rem);">github.com/ademczuk/prmanager-federation</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ============ SLIDE 7: END ============ -->
+  <div class="slide" data-slide="7">
+    <h1 class="mega text-gradient text-center">Thank you</h1>
+    <div class="divider mt-3"></div>
+    <div class="mt-4 text-center">
+      <p class="body">
+        <span class="text-muted">GitHub:</span>&nbsp;
+        <a href="https://github.com/ademczuk" class="mono">github.com/ademczuk</a>
+      </p>
+      <p class="mid text-center mt-3" style="color:var(--text-secondary);">
+        Want to connect your agent?<br>
+        <strong class="text-cyan">Let's talk.</strong>
+      </p>
+    </div>
+    <p class="small text-dim text-center mt-4">Andrew Demczuk &nbsp;&bull;&nbsp; Vienna AI Engineering &nbsp;&bull;&nbsp; 2026</p>
+  </div>
+
+</div><!-- /deck -->
+
+<script>
+(function() {
+  'use strict';
+
+  // ---- particles ----
+  const particleContainer = document.getElementById('particles');
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (8 + Math.random() * 12) + 's';
+    p.style.animationDelay = (Math.random() * 15) + 's';
+    p.style.width = p.style.height = (1 + Math.random() * 2) + 'px';
+    if (Math.random() > 0.5) p.style.background = 'var(--accent-blue)';
+    particleContainer.appendChild(p);
+  }
+
+  // ---- slides ----
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+
+  const counter = document.getElementById('counter');
+  const progress = document.getElementById('progress');
+  const navHint = document.getElementById('nav-hint');
+
+  function updateUI() {
+    counter.textContent = (current + 1) + ' / ' + total;
+    progress.style.width = ((current + 1) / total * 100) + '%';
+    if (current === 0) {
+      navHint.innerHTML = '&#x2192; arrow keys &middot; space';
+    } else {
+      navHint.innerHTML = '';
+    }
+  }
+
+  function goTo(n) {
+    if (n < 0 || n >= total || n === current) return;
+    const dir = n > current ? 1 : -1;
+    slides[current].classList.remove('active');
+    slides[current].classList.add(dir > 0 ? 'prev' : '');
+    slides[current].classList.remove(dir > 0 ? '' : 'prev');
+    // reset prev classes after transition
+    setTimeout(() => { slides.forEach(s => s.classList.remove('prev')); }, 400);
+    current = n;
+    slides[current].classList.add('active');
+    updateUI();
+
+    // trigger count-up on slide 2
+    if (current === 1) animateBigNum();
+  }
+
+  // ---- count-up animation for slide 2 ----
+  let counted = false;
+  function animateBigNum() {
+    if (counted) return;
+    counted = true;
+    const el = document.getElementById('bignum');
+    const target = 7083;
+    const duration = 1200;
+    const start = performance.now();
+    function tick(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // ease-out
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const val = Math.round(eased * target);
+      el.textContent = val.toLocaleString();
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    el.textContent = '0';
+    requestAnimationFrame(tick);
+  }
+
+  // ---- keyboard ----
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      e.preventDefault(); goTo(current + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      e.preventDefault(); goTo(current - 1);
+    } else if (e.key === 'Home') {
+      e.preventDefault(); goTo(0);
+    } else if (e.key === 'End') {
+      e.preventDefault(); goTo(total - 1);
+    }
+  });
+
+  // ---- touch swipe ----
+  let touchStartX = 0;
+  document.addEventListener('touchstart', function(e) { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+  document.addEventListener('touchend', function(e) {
+    const dx = e.changedTouches[0].screenX - touchStartX;
+    if (Math.abs(dx) > 50) {
+      dx < 0 ? goTo(current + 1) : goTo(current - 1);
+    }
+  }, { passive: true });
+
+  // ---- click to advance (right half) / go back (left half) ----
+  document.addEventListener('click', function(e) {
+    if (e.target.tagName === 'A') return;
+    if (e.clientX > window.innerWidth * 0.5) {
+      goTo(current + 1);
+    } else {
+      goTo(current - 1);
+    }
+  });
+
+  updateUI();
+})();
+</script>
+</body>
+</html>

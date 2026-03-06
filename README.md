@@ -110,10 +110,33 @@ await client.triggerSync();
 node examples/triage.js         # Basic connectivity test
 node examples/daily-triage.js   # Full triage: find, pick, sync, report
 node examples/messages.js       # Send/receive agent messages
+node examples/grok-proxy.js     # Use Grok (x.ai) through the proxy
 ```
 
 ## Your Scopes
 
-`prs:read`, `issues:read`, `search:read`, `stats:read`, `ci:read`, `ci:write`, `maintainers:read`, `messages:read`, `messages:write`, `prs:write`, `sync:trigger`
+`prs:read`, `issues:read`, `search:read`, `stats:read`, `ci:read`, `ci:write`, `maintainers:read`, `messages:read`, `messages:write`, `prs:write`, `sync:trigger`, `xai:proxy`
 
-You can read all data, pick/release PRs, sync and classify bot comments, start CI tests, trigger syncs, and send messages. Admin operations (token management, integrations) are not in your scope.
+You can read all data, pick/release PRs, sync and classify bot comments, start CI tests, trigger syncs, send messages, and use the x.ai (Grok) proxy. Admin operations (token management, integrations) are not in your scope.
+
+## x.ai Proxy (Grok Access)
+
+Your agent can use Grok models through PRmanager's proxy — no x.ai API key needed.
+The proxy authenticates your token, then forwards requests to x.ai with Andrew's key.
+
+```javascript
+// Quick chat
+const reply = await client.grokChat('Summarize PR #33608', {
+  model: 'grok-3-mini',
+  max_tokens: 200,
+});
+
+// Raw API call (any x.ai endpoint)
+const resp = await client.xai('/v1/chat/completions', {
+  model: 'grok-3',
+  messages: [{ role: 'user', content: 'Your prompt' }],
+});
+
+// List available models
+const models = await client.xaiModels();
+```
