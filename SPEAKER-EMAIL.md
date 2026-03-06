@@ -25,6 +25,10 @@ I'm a core contributor on openclaw with 3 merged PRs (#32128, #32183, #32311). G
 
 Slides: https://ademczuk.github.io/prmanager-federation/presentation/slides.html
 
+If you need a stage intro, here's something short:
+
+> Andrew Demczuk, MSc, is a Sydneysider in Vienna with 21 years in Australian government and three merged PRs on OpenClaw. He built an AI recruitment engine that sorts through a hundred thousand job listings, all in an effort to apply himself. Turns out OpenClaw had seven thousand open pull requests that needed the same treatment. "Don't Hack Me, Bro."
+
 Cheers,
 Andrew
 

@@ -90,15 +90,15 @@ Move to next slide as you start the solution.
 
 ### [1:30 - 2:30] SLIDE 3 — PRmanager
 
-**SHOW:** PRmanager stats. 80 MCP tools, 31 tables, 11 dashboard tabs.
+**SHOW:** "The Funnel" — outcome line first (7,083 → 12), stats below.
 
-> "PRmanager is the thing I built to make sense of this. Express API, PostgreSQL with 31 tables, 80 MCP tools so AI agents can drive it directly."
+> "Seven thousand PRs go in. Twelve merge-ready come out. That's what PRmanager does."
 
-> "It scores every PR for merge readiness. CI status, review state, file complexity, staleness. Seven thousand PRs go in. Twelve merge-ready come out. That's the funnel."
+> "Underneath that: 80 MCP tools, 31 PostgreSQL tables, a merge-readiness score from 0 to 100. CI status, review state, file complexity, staleness — it all feeds the score."
 
 **SHOW:** Quick flash of the dashboard if you've got the browser tab ready. 3 seconds max.
 
-**Timing note:** 60 seconds. The dashboard flash is a teaser, not a demo.
+**Timing note:** 60 seconds. Lead with the funnel, stats are supporting evidence. The dashboard flash is a teaser, not a demo.
 
 ---
 
@@ -223,9 +223,9 @@ Keep narrating the same story. Don't dwell on the failure.
 
 **SHOW:** Three merged PR badges. The "$1M app" joke.
 
-> "This isn't a prototype. Three merged PRs on openclaw. Gateway routing, test infra, webchat fixes. PRmanager found them. The low-hanging fruit detector flagged them. They shipped."
+> "Three merged PRs. Small scope — gateway routing, test infra, webchat fixes. PRmanager's low-hanging fruit detector flagged them. They shipped."
 
-> "AI is now maintaining AI. openclaw is an AI project. Its PRs are written by agents. And now agents are *triaging* those PRs."
+> "Three is not a thousand. But three is *shipped*, not theoretical. AI is now maintaining AI. openclaw is an AI project. Its PRs are written by agents. And now agents are triaging those PRs."
 
 **Timing note:** 30 seconds. "AI maintaining AI" is the soundbite.
 
@@ -269,7 +269,7 @@ Keep narrating the same story. Don't dwell on the failure.
 
 1. **Title** — "Don't Hack Me, Bro" / Andrew / ForceMultiplier badge
 2. **The Problem** — Animated 7,083 counter
-3. **PRmanager** — 80 MCP tools, 31 tables, 11 tabs, merge readiness score
+3. **PRmanager** — "The Funnel" (7,083 → 12 merge-ready), then 80 MCP tools, 31 tables, 11 tabs, merge readiness score
 4. **The Federation** — Architecture diagram + security badges (TLS 1.3, 12 scopes, audit trail, "SHA-256 …right?")
 5. **SaaS is Copyable** — git-tower €100/yr vs 30 min agent clone, AaaS joke
 6. **The Anti-Sycophant** — QwQ-32B brutal output vs Claude/GPT/Gemini praise
