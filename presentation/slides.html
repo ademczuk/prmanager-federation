@@ -90,15 +90,60 @@
     transition: opacity 0.5s;
   }
 
-  /* ---- video background ---- */
+  /* ---- video background (Gource render) ---- */
   #bg-video {
     position: fixed; inset: 0;
     width: 100%; height: 100%;
     object-fit: cover;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.12;
+    opacity: 0.3;
+    filter: saturate(0.7) brightness(0.8);
   }
+
+  /* ---- Gource overlay (top center, crowd-visible) ---- */
+  #gource-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 5;
+    text-align: center;
+    padding: 1.2vh 2vw 2vh;
+    background: linear-gradient(to bottom, rgba(10,14,26,0.85) 0%, rgba(10,14,26,0.4) 70%, transparent 100%);
+    pointer-events: none;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  #gource-title {
+    font-size: clamp(0.7rem, 1.4vw, 1.1rem);
+    color: var(--text-secondary);
+    letter-spacing: 0.05em;
+  }
+  #gource-title a {
+    color: var(--accent-cyan);
+    border-bottom: none;
+    pointer-events: auto;
+  }
+  #gource-date {
+    font-size: clamp(1.2rem, 2.8vw, 2.2rem);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0.3vh 0;
+    letter-spacing: 0.02em;
+  }
+  #gource-stats {
+    display: flex;
+    justify-content: center;
+    gap: clamp(1rem, 3vw, 3rem);
+    font-size: clamp(0.6rem, 1.1vw, 0.85rem);
+    color: var(--text-muted);
+  }
+  .gource-stat-val {
+    font-weight: 700;
+    font-size: 1.1em;
+  }
+  .gource-stat-val.prs    { color: var(--accent-green); }
+  .gource-stat-val.issues { color: var(--accent-orange); }
+  .gource-stat-val.maint  { color: var(--accent-electric); }
+  .gource-stat-val.contribs { color: var(--accent-cyan); }
 
   /* ---- background ---- */
   #bg-grid {
@@ -383,6 +428,16 @@
 <body>
 
 <video id="bg-video" autoplay loop muted playsinline src="openclaw-gource.mp4"></video>
+<div id="gource-overlay">
+  <div id="gource-title">Gource of <a href="https://github.com/openclaw/openclaw" target="_blank">github.com/openclaw/openclaw</a></div>
+  <div id="gource-date">Nov 24, 2025</div>
+  <div id="gource-stats">
+    <span>Contributors <span class="gource-stat-val contribs" id="gc-contribs">1</span></span>
+    <span>PRs <span class="gource-stat-val prs" id="gc-prs">0</span></span>
+    <span>Issues <span class="gource-stat-val issues" id="gc-issues">0</span></span>
+    <span>Maintainers <span class="gource-stat-val maint" id="gc-maint">1</span></span>
+  </div>
+</div>
 <div id="bg-grid"></div>
 <div class="particles" id="particles"></div>
 <div id="progress"></div>
@@ -715,6 +770,44 @@
       goTo(current - 1);
     }
   });
+
+  // ════════════════════════════════════════════════════════════
+  // GOURCE OVERLAY — syncs stats to video playback
+  // ════════════════════════════════════════════════════════════
+  var gourceStats = [{"date":"2025-11-24","contributors":1,"prs":65,"issues":49,"maintainers":1},{"date":"2025-11-25","contributors":1,"prs":246,"issues":184,"maintainers":1},{"date":"2025-11-26","contributors":2,"prs":299,"issues":224,"maintainers":2},{"date":"2025-11-27","contributors":2,"prs":330,"issues":247,"maintainers":2},{"date":"2025-11-28","contributors":2,"prs":340,"issues":254,"maintainers":2},{"date":"2025-11-29","contributors":2,"prs":347,"issues":260,"maintainers":2},{"date":"2025-11-30","contributors":2,"prs":351,"issues":262,"maintainers":2},{"date":"2025-12-02","contributors":3,"prs":399,"issues":299,"maintainers":3},{"date":"2025-12-03","contributors":3,"prs":475,"issues":355,"maintainers":3},{"date":"2025-12-04","contributors":4,"prs":485,"issues":363,"maintainers":3},{"date":"2025-12-05","contributors":4,"prs":525,"issues":393,"maintainers":4},{"date":"2025-12-06","contributors":4,"prs":643,"issues":481,"maintainers":4},{"date":"2025-12-07","contributors":4,"prs":858,"issues":642,"maintainers":4},{"date":"2025-12-08","contributors":4,"prs":1010,"issues":756,"maintainers":4},{"date":"2025-12-09","contributors":4,"prs":1237,"issues":926,"maintainers":4},{"date":"2025-12-10","contributors":4,"prs":1315,"issues":984,"maintainers":4},{"date":"2025-12-11","contributors":4,"prs":1320,"issues":988,"maintainers":4},{"date":"2025-12-12","contributors":4,"prs":1430,"issues":1070,"maintainers":4},{"date":"2025-12-13","contributors":4,"prs":1637,"issues":1225,"maintainers":4},{"date":"2025-12-14","contributors":5,"prs":1838,"issues":1376,"maintainers":5},{"date":"2025-12-15","contributors":6,"prs":1839,"issues":1377,"maintainers":5},{"date":"2025-12-16","contributors":6,"prs":1850,"issues":1385,"maintainers":5},{"date":"2025-12-17","contributors":6,"prs":1956,"issues":1464,"maintainers":5},{"date":"2025-12-18","contributors":6,"prs":2079,"issues":1556,"maintainers":5},{"date":"2025-12-19","contributors":6,"prs":2159,"issues":1616,"maintainers":5},{"date":"2025-12-20","contributors":7,"prs":2404,"issues":1799,"maintainers":6},{"date":"2025-12-21","contributors":7,"prs":2504,"issues":1874,"maintainers":6},{"date":"2025-12-22","contributors":7,"prs":2539,"issues":1900,"maintainers":6},{"date":"2025-12-23","contributors":8,"prs":2606,"issues":1951,"maintainers":7},{"date":"2025-12-24","contributors":8,"prs":2690,"issues":2013,"maintainers":7},{"date":"2025-12-25","contributors":9,"prs":2721,"issues":2036,"maintainers":8},{"date":"2025-12-26","contributors":9,"prs":2805,"issues":2099,"maintainers":8},{"date":"2025-12-27","contributors":9,"prs":2845,"issues":2129,"maintainers":8},{"date":"2025-12-28","contributors":9,"prs":2856,"issues":2138,"maintainers":8},{"date":"2025-12-29","contributors":9,"prs":2885,"issues":2160,"maintainers":8},{"date":"2025-12-30","contributors":10,"prs":2956,"issues":2212,"maintainers":9},{"date":"2025-12-31","contributors":12,"prs":2973,"issues":2225,"maintainers":9},{"date":"2026-01-01","contributors":17,"prs":3102,"issues":2322,"maintainers":15},{"date":"2026-01-02","contributors":23,"prs":3288,"issues":2461,"maintainers":21},{"date":"2026-01-03","contributors":30,"prs":3532,"issues":2643,"maintainers":28},{"date":"2026-01-04","contributors":40,"prs":3706,"issues":2774,"maintainers":28},{"date":"2026-01-05","contributors":54,"prs":3917,"issues":2932,"maintainers":28},{"date":"2026-01-06","contributors":77,"prs":4208,"issues":3150,"maintainers":34},{"date":"2026-01-07","contributors":102,"prs":4535,"issues":3394,"maintainers":39},{"date":"2026-01-08","contributors":121,"prs":4990,"issues":3735,"maintainers":64},{"date":"2026-01-09","contributors":138,"prs":5521,"issues":4132,"maintainers":85},{"date":"2026-01-10","contributors":158,"prs":5897,"issues":4413,"maintainers":86},{"date":"2026-01-11","contributors":167,"prs":6160,"issues":4611,"maintainers":93},{"date":"2026-01-12","contributors":176,"prs":6561,"issues":4911,"maintainers":105},{"date":"2026-01-13","contributors":185,"prs":6786,"issues":5079,"maintainers":108},{"date":"2026-01-14","contributors":187,"prs":6892,"issues":5158,"maintainers":109},{"date":"2026-01-15","contributors":192,"prs":7177,"issues":5372,"maintainers":118},{"date":"2026-01-16","contributors":201,"prs":7428,"issues":5560,"maintainers":120},{"date":"2026-01-17","contributors":209,"prs":7787,"issues":5828,"maintainers":130},{"date":"2026-01-18","contributors":219,"prs":8163,"issues":6110,"maintainers":142},{"date":"2026-01-19","contributors":224,"prs":8300,"issues":6212,"maintainers":146},{"date":"2026-01-20","contributors":235,"prs":8573,"issues":6417,"maintainers":159},{"date":"2026-01-21","contributors":245,"prs":8828,"issues":6607,"maintainers":170},{"date":"2026-01-22","contributors":253,"prs":9064,"issues":6784,"maintainers":178},{"date":"2026-01-23","contributors":270,"prs":9298,"issues":6960,"maintainers":178},{"date":"2026-01-24","contributors":290,"prs":9559,"issues":7155,"maintainers":180},{"date":"2026-01-25","contributors":316,"prs":9780,"issues":7320,"maintainers":180},{"date":"2026-01-26","contributors":339,"prs":9941,"issues":7440,"maintainers":181},{"date":"2026-01-27","contributors":358,"prs":10097,"issues":7557,"maintainers":182},{"date":"2026-01-28","contributors":372,"prs":10168,"issues":7610,"maintainers":183},{"date":"2026-01-29","contributors":377,"prs":10201,"issues":7635,"maintainers":183},{"date":"2026-01-30","contributors":393,"prs":10276,"issues":7691,"maintainers":184},{"date":"2026-01-31","contributors":402,"prs":10431,"issues":7807,"maintainers":187},{"date":"2026-02-01","contributors":420,"prs":10538,"issues":7888,"maintainers":188},{"date":"2026-02-02","contributors":434,"prs":10713,"issues":8018,"maintainers":190},{"date":"2026-02-03","contributors":448,"prs":10838,"issues":8112,"maintainers":190},{"date":"2026-02-04","contributors":460,"prs":10916,"issues":8170,"maintainers":190},{"date":"2026-02-05","contributors":480,"prs":11024,"issues":8251,"maintainers":191},{"date":"2026-02-06","contributors":497,"prs":11121,"issues":8324,"maintainers":191},{"date":"2026-02-07","contributors":508,"prs":11187,"issues":8373,"maintainers":191},{"date":"2026-02-08","contributors":522,"prs":11254,"issues":8423,"maintainers":191},{"date":"2026-02-09","contributors":537,"prs":11378,"issues":8516,"maintainers":193},{"date":"2026-02-10","contributors":551,"prs":11450,"issues":8570,"maintainers":193},{"date":"2026-02-11","contributors":563,"prs":11521,"issues":8623,"maintainers":193},{"date":"2026-02-12","contributors":593,"prs":11676,"issues":8739,"maintainers":194},{"date":"2026-02-13","contributors":638,"prs":11962,"issues":8953,"maintainers":197},{"date":"2026-02-14","contributors":666,"prs":12815,"issues":9591,"maintainers":238},{"date":"2026-02-15","contributors":680,"prs":13515,"issues":10115,"maintainers":257},{"date":"2026-02-16","contributors":761,"prs":14557,"issues":10895,"maintainers":260},{"date":"2026-02-17","contributors":777,"prs":14869,"issues":11129,"maintainers":263},{"date":"2026-02-18","contributors":780,"prs":15279,"issues":11436,"maintainers":268},{"date":"2026-02-19","contributors":799,"prs":15683,"issues":11739,"maintainers":273},{"date":"2026-02-20","contributors":813,"prs":15822,"issues":11843,"maintainers":274},{"date":"2026-02-21","contributors":824,"prs":16421,"issues":12291,"maintainers":290},{"date":"2026-02-22","contributors":851,"prs":17310,"issues":12956,"maintainers":322},{"date":"2026-02-23","contributors":888,"prs":17607,"issues":13179,"maintainers":324},{"date":"2026-02-24","contributors":910,"prs":18016,"issues":13484,"maintainers":326},{"date":"2026-02-25","contributors":922,"prs":18210,"issues":13629,"maintainers":328},{"date":"2026-02-26","contributors":943,"prs":18639,"issues":13951,"maintainers":333},{"date":"2026-02-27","contributors":960,"prs":18777,"issues":14054,"maintainers":334},{"date":"2026-02-28","contributors":998,"prs":18960,"issues":14191,"maintainers":334},{"date":"2026-03-01","contributors":1038,"prs":19228,"issues":14391,"maintainers":337},{"date":"2026-03-02","contributors":1088,"prs":20065,"issues":15018,"maintainers":341},{"date":"2026-03-03","contributors":1120,"prs":20456,"issues":15310,"maintainers":352},{"date":"2026-03-04","contributors":1130,"prs":20592,"issues":15412,"maintainers":357},{"date":"2026-03-05","contributors":1138,"prs":20709,"issues":15500,"maintainers":357},{"date":"2026-03-06","contributors":1147,"prs":20773,"issues":15548,"maintainers":357}];
+
+  var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function fmtDate(iso) {
+    var parts = iso.split('-');
+    return MONTHS[parseInt(parts[1],10)-1] + ' ' + parseInt(parts[2],10) + ', ' + parts[0];
+  }
+  function fmtNum(n) { return n.toLocaleString(); }
+
+  var video = document.getElementById('bg-video');
+  var elDate = document.getElementById('gource-date');
+  var elContribs = document.getElementById('gc-contribs');
+  var elPrs = document.getElementById('gc-prs');
+  var elIssues = document.getElementById('gc-issues');
+  var elMaint = document.getElementById('gc-maint');
+  var totalDays = gourceStats.length;
+
+  function updateGourceOverlay() {
+    if (!video || !video.duration || video.duration === Infinity) return;
+    var pct = video.currentTime / video.duration;
+    var idx = Math.min(Math.floor(pct * totalDays), totalDays - 1);
+    if (idx < 0) idx = 0;
+    var s = gourceStats[idx];
+    elDate.textContent = fmtDate(s.date);
+    elContribs.textContent = fmtNum(s.contributors);
+    elPrs.textContent = fmtNum(s.prs);
+    elIssues.textContent = fmtNum(s.issues);
+    elMaint.textContent = fmtNum(s.maintainers);
+  }
+
+  if (video) {
+    video.addEventListener('timeupdate', updateGourceOverlay);
+    video.addEventListener('loadedmetadata', updateGourceOverlay);
+  }
 
   // ---- init ----
   updateChrome();
