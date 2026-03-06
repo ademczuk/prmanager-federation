@@ -41,9 +41,15 @@ If the live demo fails (network down, API timeout, anything):
 - [ ] Transition line ready: "The venue WiFi has opinions — let me show you the recording from this morning"
 - [ ] Do NOT apologise more than once. Just switch and keep going.
 
-### Gource Background Animation
-- [ ] `presentation/openclaw-gource.mp4` ready as background visual if needed
-- [ ] Can loop during title/closing slides for extra visual punch
+### Gource Background Animation (PERSISTENT — plays behind every slide)
+- [ ] `presentation/openclaw-gource.mp4` loaded and autoplaying behind all slides
+- [ ] Video plays at 30% opacity with colour filter — visible but not distracting
+- [ ] **Live stats overlay** ticks up in sync with video playback:
+  - Contributors, PRs, Issues, Maintainers counting up across 103 days of openclaw history
+  - Nov 2025 → March 2026, synced to video timestamp
+  - Overlay sits bottom-left, z-index 100, semi-transparent
+- [ ] Stats are a visual reinforcement — you do NOT need to mention them verbally
+- [ ] If video fails to load, slides still work fine (transparent background falls back to dark)
 
 ### Mental
 - [ ] Water bottle on stage
@@ -106,9 +112,15 @@ Move to next slide as you start the solution.
 
 > "So we built federation. Two repos, one API contract. Will's agent authenticates with a scoped token and calls PRmanager directly. Same pattern as Stripe. Twelve scopes. Standard stuff."
 
+**VERBALIZE (security badges are on screen — talk through them, don't read them):**
+
+> "The connection is TLS 1.3 end-to-end. Not terminated at some edge — it terminates on my machine. Tailscale never sees plaintext. Twelve scoped permissions. Full audit trail on every call. And the tokens are SHA-256 hashed…" *(glance at the "…right?" badge, slight pause)* "…we'll come back to that."
+
+**Note:** The "SHA-256 hashing …right?" badge is a deliberate setup for slide 6 (QwQ-32B finding unsalted SHA-256 as FATAL). Don't oversell the security here. Let the audience think everything's solid. Slide 6 pulls the rug.
+
 > "The key insight: we don't share a codebase. We don't share a database. We share an *API contract*."
 
-**Timing note:** 90 seconds. This is the intellectual core. "Same pattern as Stripe" is enough for this audience.
+**Timing note:** 90 seconds. This is the intellectual core. "Same pattern as Stripe" is enough for this audience. The Tailscale detail is 10 seconds max — don't lecture.
 
 ---
 
@@ -191,7 +203,9 @@ Keep narrating the same story. Don't dwell on the failure.
 
 **SHOW:** The QwQ-32B brutal output next to the Claude/GPT/Gemini "great work!" response.
 
-> "Here's the thing that actually scared me. I built the auth gateway for this federation. Asked Claude, GPT, and Gemini to review it. All three said it was solid. Great work, minor suggestion, ship it."
+> "Remember that SHA-256 badge with the question mark? Here's why."
+
+> "I built the auth gateway for this federation. Asked Claude, GPT, and Gemini to review it. All three said it was solid. Great work, minor suggestion, ship it."
 
 > "Then I pointed QwQ-32B at it. A 32-billion parameter model that doesn't do sycophancy. It found three FATAL flaws. Unsalted SHA-256, timing-side-channel on the token comparison, dev mode that bypasses auth entirely when an env var is unset."
 
@@ -256,7 +270,7 @@ Keep narrating the same story. Don't dwell on the failure.
 1. **Title** — "Don't Hack Me, Bro" / Andrew / ForceMultiplier badge
 2. **The Problem** — Animated 7,083 counter
 3. **PRmanager** — 80 MCP tools, 31 tables, 11 tabs, merge readiness score
-4. **The Federation** — Architecture diagram (Andrew + Will + HTTPS API)
+4. **The Federation** — Architecture diagram + security badges (TLS 1.3, 12 scopes, audit trail, "SHA-256 …right?")
 5. **SaaS is Copyable** — git-tower €100/yr vs 30 min agent clone, AaaS joke
 6. **The Anti-Sycophant** — QwQ-32B brutal output vs Claude/GPT/Gemini praise
 7. **The Punchline** — Three merged PRs, "$1M app for $2M in tokens"
