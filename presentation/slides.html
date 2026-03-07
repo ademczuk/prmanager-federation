@@ -430,8 +430,8 @@
     gap: 2px;
     pointer-events: auto;
   }
-  .qr-item:nth-child(1) { top: 14vh; left: 40px; }
-  .qr-item:nth-child(2) { top: 14vh; right: 40px; }
+  .qr-item:nth-child(1) { top: calc(14vh - 40px); left: 40px; }
+  .qr-item:nth-child(2) { top: calc(14vh - 40px); right: 40px; }
   .qr-item:nth-child(3) { bottom: 50px; left: 40px; }
   .qr-item:nth-child(4) { bottom: 50px; right: 40px; }
   .qr-label {
@@ -447,8 +447,8 @@
     word-break: break-all;
   }
   .qr-img {
-    width: clamp(140px, 18vw, 220px);
-    height: clamp(140px, 18vw, 220px);
+    width: clamp(240px, 18vw, 320px);
+    height: clamp(240px, 18vw, 320px);
     border-radius: 8px;
     border: 2px solid rgba(255,255,255,0.1);
     background: #fff;
