@@ -57,9 +57,11 @@ If the live demo fails (network down, API timeout, anything):
 
 ## NARRATIVE THREAD
 
-Everything you say hangs off one idea: **coordination is the bottleneck, not code.**
+Everything you say hangs off one idea: **another person's agent makes yours better.**
 
-You have an MSc in Logistics. OpenClaw's 7,000 PRs is a supply chain problem. Agents already write code. What they cannot do is coordinate. You built the coordination layer. Then you red-teamed it because a coordination system that moves bad decisions faster is worse than no system at all.
+You have an MSc in Logistics. OpenClaw's 7,000 PRs is a supply chain problem. Agents already write code. What they cannot do is coordinate. You built the coordination layer. Then someone else's agent plugged in and the results got better for both sides. That is a force multiplier. Not additive. Multiplicative. Will's search gives your triage context it could never generate alone. Your scoring gives his search a purpose it never had.
+
+Then you red-teamed it because a force multiplier on bad decisions is worse than no system at all.
 
 That is the talk. Every slide supports this. Nothing else.
 
@@ -118,6 +120,8 @@ Let the number animate. Point at it.
 **SHOW:** Architecture diagram. Two agents, HTTPS API in the middle.
 
 > "But filtering on one machine is not enough. Will Sparkman built a completely separate tool — a PR search engine with 63,000 indexed chunks using Codex and OpenAI embeddings. He answers 'what has been done before?' I answer 'what should we do next?'"
+
+> "Separately, both tools are useful. Together, they are better than either one alone. His search gives my triage context it could never generate. My scoring gives his search a direction it never had. That is a force multiplier. Not two tools side by side. Two tools making each other stronger."
 
 > "The old workflow: I'd find a PR in PRmanager, paste it to Will on Discord, he'd paste it into Codex. Human clipboard relay. Two agents, zero coordination."
 
@@ -274,7 +278,7 @@ Keep narrating the same story. Don't dwell.
 
 ## THE NARRATIVE IN ONE SENTENCE
 
-"Seven thousand PRs is a coordination problem, not a code problem — so I built a logistics layer that lets AI agents share tools across different people's machines, then red-teamed it because coordination without verification is just faster mistakes."
+"Another person's AI agent made mine better, and mine made theirs better — that is a force multiplier. Then I red-teamed it because a force multiplier on bad decisions is worse than no system at all."
 
 ## PHRASES TO AVOID
 
@@ -287,11 +291,12 @@ Keep narrating the same story. Don't dwell.
 
 ## PHRASES THAT WORK
 
-- "Not a code problem. A coordination problem." (The frame)
+- "Another person's agent makes yours better." (The frame)
+- "Not two tools side by side. Two tools making each other stronger." (The force multiplier)
 - "Seven thousand in, twelve out." (The funnel)
 - "Human clipboard relay." (The laugh)
 - "Same pattern as Stripe." (Instant credibility)
-- "A coordination system that moves bad decisions faster is worse than nothing." (The QwQ setup)
+- "A force multiplier on bad decisions is worse than nothing." (The QwQ setup)
 - "You need a model that doesn't care about your feelings." (The hook)
 - "AI maintaining AI." (The soundbite)
 - "The API is live right now." (Proof over promises)

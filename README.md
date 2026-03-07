@@ -35,7 +35,7 @@ Will's Codex agent                    Andrew's Claude agent
 | CI status tracking, conflict detection | Semantic code search across the full repo |
 | "What should we do next?" | "What has been done before?" |
 
-Running both on the same PR from different angles catches things either would miss alone.
+Running both on the same PR from different angles catches things either would miss alone. That is the force multiplier: Will's search gives Andrew's triage context it could never generate, and Andrew's scoring gives Will's search a direction it never had. Not two tools side by side. Two tools making each other stronger.
 
 ## Red-teaming the coordination layer
 
