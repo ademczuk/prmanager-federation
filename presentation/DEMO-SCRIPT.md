@@ -22,7 +22,7 @@
 
 ### Browser Tabs (pre-opened, in order)
 1. Dashboard at `http://localhost:3099` — PR overview tab visible
-2. `https://github.com/openclaw/openclaw/pulls` — shows the PR count for credibility
+2. `https://github.com/openclaw/openclaw/pulls` — shows the PR count
 3. Slides at `https://ademczuk.github.io/prmanager-federation/presentation/slides.html`
 
 ### Display
@@ -34,27 +34,34 @@
 
 ### Backup Plan
 If the live demo fails (network down, API timeout, anything):
-- [ ] **Screen recording** of `node examples/triage.js` saved as `presentation/demo-recording.mp4`
-  - Record this the night before while the API is confirmed working
+- [ ] **Screen recording** saved as `presentation/demo-recording.mp4`
+  - Record the night before while the API is confirmed working
   - 30-45 seconds, terminal only, no commentary needed
-- [ ] **Screenshot** of triage output saved as `presentation/demo-screenshot.png`
-- [ ] Transition line ready: "The venue WiFi has opinions — let me show you the recording from this morning"
+- [ ] **Screenshot** saved as `presentation/demo-screenshot.png`
+- [ ] Transition line: "The venue WiFi has opinions — let me show you the recording from this morning"
 - [ ] Do NOT apologise more than once. Just switch and keep going.
 
 ### Gource Background Animation (PERSISTENT — plays behind every slide)
 - [ ] `presentation/openclaw-gource.mp4` loaded and autoplaying behind all slides
 - [ ] Video plays at 30% opacity with colour filter — visible but not distracting
-- [ ] **Live stats overlay** ticks up in sync with video playback:
-  - Contributors, PRs, Issues, Maintainers counting up across 103 days of openclaw history
-  - Nov 2025 → March 2026, synced to video timestamp
-  - Overlay sits bottom-left, z-index 100, semi-transparent
-- [ ] Stats are a visual reinforcement — you do NOT need to mention them verbally
+- [ ] **Live stats overlay** ticks up in sync with video playback
+- [ ] Stats are a visual reinforcement — you do NOT need to mention them
 - [ ] If video fails to load, slides still work fine (transparent background falls back to dark)
 
 ### Mental
 - [ ] Water bottle on stage
 - [ ] Phone on silent, face down
-- [ ] Know your first sentence by heart (you never get a second chance at the opening)
+- [ ] Know your first sentence by heart
+
+---
+
+## NARRATIVE THREAD
+
+Everything you say hangs off one idea: **coordination is the bottleneck, not code.**
+
+You have an MSc in Logistics. OpenClaw's 7,000 PRs is a supply chain problem. Agents already write code. What they cannot do is coordinate. You built the coordination layer. Then you red-teamed it because a coordination system that moves bad decisions faster is worse than no system at all.
+
+That is the talk. Every slide supports this. Nothing else.
 
 ---
 
@@ -64,15 +71,15 @@ If the live demo fails (network down, API timeout, anything):
 
 ### [0:00 - 0:30] SLIDE 1 — Title
 
-**SHOW:** Title slide. "Don't Hack Me, Bro." ForceMultiplier badge. Your name.
+**SHOW:** Title slide. "Don't Hack Me, Bro." ForceMultiplier badge.
 
-> "openclaw/openclaw has seven thousand open pull requests. Not seven hundred. Seven *thousand*. A new one lands every two minutes. Nobody can keep up."
+> "openclaw has seven thousand open pull requests. Not seven hundred. Seven *thousand*."
 
-*Beat. Let that land.*
+*Beat.*
 
-> "So I built a system where two AI agents triage those PRs together. My Claude Code and another contributor's Codex CLI. They talk over HTTPS. No human in the loop. We're calling it ForceMultiplier."
+> "That is not a code problem. There are already AI agents writing code, reviewing code, commenting on code. The problem is coordination. None of those agents can talk to each other. I have a master's in logistics. I know a routing problem when I see one."
 
-**Timing note:** 30 seconds. Don't rush "seven thousand." It's the punchline.
+**Timing note:** 30 seconds. This is the frame for the entire talk. "Not a code problem — a coordination problem" is the sentence the audience takes home.
 
 ---
 
@@ -82,53 +89,57 @@ If the live demo fails (network down, API timeout, anything):
 
 Let the number animate. Point at it.
 
-> "That's not a typo. Seven thousand and eighty-three. Every single one needs triaging."
+> "Seven thousand and eighty-three. A new PR lands every two minutes. Each one needs triaging — is CI passing? Are reviews done? Does it conflict with something else? Are the bot comments genuine or false positives?"
 
-Move to next slide as you start the solution.
+> "No human can route that. And right now, no agent can either, because every agent is stuck on one person's machine with no visibility into what anyone else is doing."
+
+**Timing note:** 60 seconds. You are naming the bottleneck. The audience should be nodding.
 
 ---
 
 ### [1:30 - 2:30] SLIDE 3 — PRmanager
 
-**SHOW:** "The Funnel" — outcome line first (7,083 → 12), stats below.
+**SHOW:** "The Funnel" — 7,083 → 12 merge-ready.
 
-> "Seven thousand PRs go in. Twelve merge-ready come out. That's what PRmanager does."
+> "PRmanager was my first fix. Seven thousand PRs go in, twelve merge-ready come out. It scores every PR from 0 to 100 on merge readiness — CI, reviews, conflicts, staleness, bot comments. The funnel does the routing."
 
-> "Underneath that: 80 MCP tools, 31 PostgreSQL tables, a merge-readiness score from 0 to 100. CI status, review state, file complexity, staleness — it all feeds the score."
+*Point at the 12.*
 
-**SHOW:** Quick flash of the dashboard if you've got the browser tab ready. 3 seconds max.
+> "That is what a logistics system looks like. Not more code. Better prioritisation."
 
-**Timing note:** 60 seconds. Lead with the funnel, stats are supporting evidence. The dashboard flash is a teaser, not a demo.
+**SHOW:** Quick flash of the dashboard. 3 seconds max.
+
+**Timing note:** 60 seconds. DO NOT list tools or tables. The funnel visual tells the story. "Seven thousand in, twelve out" is the only number that matters.
 
 ---
 
 ### [2:30 - 4:00] SLIDE 4 — The Federation
 
-**SHOW:** Architecture diagram. Andrew's Claude Code on one side, Will's Codex CLI on the other, HTTPS API in the middle.
+**SHOW:** Architecture diagram. Two agents, HTTPS API in the middle.
 
-> "I'm not the only person building tools for openclaw. Will built a completely separate PR search tool using Codex and OpenAI embeddings. Different LLM, different stack, different person."
+> "But filtering on one machine is not enough. Will Sparkman built a completely separate tool — a PR search engine with 63,000 indexed chunks using Codex and OpenAI embeddings. He answers 'what has been done before?' I answer 'what should we do next?'"
 
-> "The old workflow was embarrassing. I'd find something in PRmanager, paste it to Will on Discord, he'd paste it into Codex. Human clipboard relay. That's not AI collaboration, that's two people with extra steps."
+> "The old workflow: I'd find a PR in PRmanager, paste it to Will on Discord, he'd paste it into Codex. Human clipboard relay. Two agents, zero coordination."
 
-> "So we built federation. Two repos, one API contract. Will's agent authenticates with a scoped token and calls PRmanager directly. Same pattern as Stripe. Twelve scopes. Standard stuff."
+> "So we built federation. His agent authenticates with a scoped token and calls my system directly. My agent calls his search. Same pattern as Stripe — Bearer token, HTTPS, twelve scoped permissions."
 
-**VERBALIZE (security badges are on screen — talk through them, don't read them):**
+**VERBALIZE (security badges on screen — talk through them, don't read them):**
 
-> "The connection is TLS 1.3 end-to-end. Not terminated at some edge — it terminates on my machine. Tailscale never sees plaintext. Twelve scoped permissions. Full audit trail on every call. And the tokens are SHA-256 hashed…" *(glance at the "…right?" badge, slight pause)* "…we'll come back to that."
+> "TLS 1.3 end-to-end. Audit trail on every call. Tokens are SHA-256 hashed..." *(glance at the "...right?" badge, slight pause)* "...we'll come back to that."
 
-**Note:** The "SHA-256 hashing …right?" badge is a deliberate setup for slide 6 (QwQ-32B finding unsalted SHA-256 as FATAL). Don't oversell the security here. Let the audience think everything's solid. Slide 6 pulls the rug.
+**Note:** The "SHA-256 ...right?" badge is a deliberate setup for slide 6. Let the audience think the security is solid. Slide 6 pulls the rug.
 
-> "The key insight: we don't share a codebase. We don't share a database. We share an *API contract*."
+> "Two separate repos. Two different LLMs. One shared API contract. That is the coordination layer."
 
-**Timing note:** 90 seconds. This is the intellectual core. "Same pattern as Stripe" is enough for this audience. The Tailscale detail is 10 seconds max — don't lecture.
+**Timing note:** 90 seconds. "Human clipboard relay" gets the laugh. "Same pattern as Stripe" gives instant credibility. Move to demo.
 
 ---
 
-### [4:00 - 5:00] LIVE DEMO (from slide 4, switch to terminal)
+### [4:00 - 5:00] LIVE DEMO (switch from slide 4 to terminal)
 
 **SHOW:** Switch to terminal. Full screen. Font size 20+.
 
-> "Let me show you the handshake."
+> "Let me show you the coordination happening."
 
 **TYPE:**
 ```
@@ -141,7 +152,7 @@ node examples/triage.js
 Authenticated as: will (Will's Codex Agent)
 ```
 
-> "There's the auth. Will's token, twelve scopes, over TLS."
+> "There is the handshake. Will's token, twelve scopes, over TLS."
 
 ```
 --- Dashboard Stats ---
@@ -149,14 +160,14 @@ Authenticated as: will (Will's Codex Agent)
   Ready to merge: 12
 ```
 
-> "Seven thousand PRs. Twelve ready to merge right now."
+> "Seven thousand in. Twelve ready to merge right now."
 
 ```
 --- Ready to Merge (12) ---
   #33608: chore(ci): unblock audit + command spec checks (score: ...)
 ```
 
-> "Score 89. CI passing, reviews approved, no merge conflicts. A bot could merge that right now."
+> "Score 89. CI passing, reviews approved, no conflicts. A bot could merge that right now. The coordination layer found it. No human triaged that."
 
 **IF TIME ALLOWS (you're under 4:30):**
 
@@ -165,9 +176,7 @@ Authenticated as: will (Will's Codex Agent)
 node examples/daily-triage.js
 ```
 
-> "Full triage. Discover low-hanging fruit, pick top three, sync bot comments, check CI, send me a report, release the picks. Autonomous."
-
-Point at key moments. Don't narrate every line.
+> "Full autonomous triage. Discover, pick, sync bot comments, check CI, report, release. The whole logistics loop."
 
 ---
 
@@ -177,9 +186,9 @@ Point at key moments. Don't narrate every line.
 
 **SHOW:** Play `presentation/demo-recording.mp4` or show `presentation/demo-screenshot.png`.
 
-Keep narrating the same story. Don't dwell on the failure.
+Keep narrating the same story. Don't dwell.
 
-**Timing note:** 60 seconds for demo. If `triage.js` works fast, run `daily-triage.js` too. If flaky, stick with triage only.
+**Timing note:** 60 seconds for demo. If `triage.js` works fast, run `daily-triage.js` too. If flaky, triage only.
 
 ---
 
@@ -187,47 +196,47 @@ Keep narrating the same story. Don't dwell on the failure.
 
 **SHOW:** The git-tower vs "30 min" comparison. AaaS punchline.
 
-> "Quick tangent. git-tower.com is a hundred euros a year. My agent replicated it in thirty minutes. And improved it."
+> "Quick tangent on why coordination matters more than features. git-tower.com is a hundred euros a year. My agent replicated it in thirty minutes. And improved it."
 
-> "SaaS is trivially copyable now. Welcome to AaaS. Agents as a Service."
+> "Features are copyable. Dashboards are copyable. The thing that is not copyable is the coordination layer between agents — because that depends on trust, scoping, and shared data across different people's machines."
 
-*Pause for the phonetic joke to land.*
+> "Welcome to AaaS. Agents as a Service."
 
-> "Peter Steinberger says OpenClaw smells like a clanker. I reckon this smells like AaaS."
+*Pause for the phonetic joke.*
 
-**Timing note:** 40 seconds. Let the audience laugh. Don't step on it.
+**Timing note:** 40 seconds. The AaaS joke lands better when it follows the "coordination is the real product" point.
 
 ---
 
 ### [5:40 - 6:20] SLIDE 6 — The Anti-Sycophant
 
-**SHOW:** The QwQ-32B brutal output next to the Claude/GPT/Gemini "great work!" response.
+**SHOW:** QwQ-32B brutal output next to Claude/GPT/Gemini "great work!" response.
 
 > "Remember that SHA-256 badge with the question mark? Here's why."
 
-> "I built the auth gateway for this federation. Asked Claude, GPT, and Gemini to review it. All three said it was solid. Great work, minor suggestion, ship it."
+> "A coordination system that moves bad decisions faster is worse than no system at all. So I red-teamed my own auth gateway. Asked Claude, GPT, and Gemini to review it. All three said ship it."
 
-> "Then I pointed QwQ-32B at it. A 32-billion parameter model that doesn't do sycophancy. It found three FATAL flaws. Unsalted SHA-256, timing-side-channel on the token comparison, dev mode that bypasses auth entirely when an env var is unset."
+> "Then I pointed QwQ-32B at it — a 32 billion parameter model running locally, with the politeness trained out of it. It found three critical flaws. Unsalted SHA-256. Timing side-channel on the token comparison. Dev mode that silently disables auth when an env var is missing."
 
-> "Verdict: REWRITE. A junior wrote this, a senior would have caught it."
+> "Verdict: REWRITE."
 
 *Beat.*
 
-> "If every model tells you you're brilliant, you need a model that doesn't care about your feelings."
+> "If every model tells you you're brilliant, you need a model that does not care about your feelings. Especially when it is auditing the coordination layer that other agents depend on."
 
-**Timing note:** 40 seconds. This is the real talk. The audience knows sycophancy is a problem. Give them the receipts.
+**Timing note:** 40 seconds. "A coordination system that moves bad decisions faster" is the line that ties this back to the logistics thread.
 
 ---
 
 ### [6:20 - 6:50] SLIDE 7 — The Punchline
 
-**SHOW:** Three merged PR badges. The "$1M app" joke.
+**SHOW:** Three merged PR badges.
 
-> "Three merged PRs. Small scope — gateway routing, test infra, webchat fixes. PRmanager's low-hanging fruit detector flagged them. They shipped."
+> "Three merged PRs. Gateway routing, test infra, webchat. Small scope. Real code. Shipped."
 
-> "Three is not a thousand. But three is *shipped*, not theoretical. AI is now maintaining AI. openclaw is an AI project. Its PRs are written by agents. And now agents are triaging those PRs."
+> "The coordination layer found them, the agents triaged them, the adversarial model checked them. AI maintaining AI. That is the logistics system working end to end."
 
-**Timing note:** 30 seconds. "AI maintaining AI" is the soundbite.
+**Timing note:** 30 seconds. "AI maintaining AI" is the soundbite. "Logistics system working end to end" closes the loop.
 
 ---
 
@@ -235,7 +244,7 @@ Keep narrating the same story. Don't dwell on the failure.
 
 **SHOW:** Links. GitHub, slides URL, federation SDK.
 
-> "PRmanager is open source. The API is live right now. You literally just saw the curl. Come find me after if you want to see the dashboard. I'm Andrew. Thanks."
+> "The API is live right now. You literally just saw it. The whole thing is open source. Come find me after if you want to see the dashboard. I'm Andrew. Thanks."
 
 **Walk off. Seven minutes means seven minutes.**
 
@@ -243,53 +252,46 @@ Keep narrating the same story. Don't dwell on the failure.
 
 ## TIMING CHEAT SHEET
 
-| Time    | Section               | Duration | What's on screen          |
-|---------|-----------------------|----------|---------------------------|
+| Time    | Section               | Duration | What's on screen            |
+|---------|-----------------------|----------|-----------------------------|
 | 0:00    | Title                 | 0:30     | Slide 1: Don't Hack Me, Bro |
-| 0:30    | The Problem           | 1:00     | Slide 2: 7,083 counter     |
-| 1:30    | PRmanager             | 1:00     | Slide 3: stats + dashboard flash |
+| 0:30    | The Problem           | 1:00     | Slide 2: 7,083 counter      |
+| 1:30    | PRmanager             | 1:00     | Slide 3: funnel + dashboard flash |
 | 2:30    | Federation            | 1:30     | Slide 4: architecture diagram |
-| 4:00    | Live Demo             | 1:00     | Terminal (full screen)    |
+| 4:00    | Live Demo             | 1:00     | Terminal (full screen)      |
 | 5:00    | SaaS / AaaS           | 0:40     | Slide 5: git-tower vs 30 min |
-| 5:40    | Anti-Sycophant        | 0:40     | Slide 6: QwQ brutal output |
-| 6:20    | Punchline             | 0:30     | Slide 7: merged PRs + joke |
-| 6:50    | Close                 | 0:10     | Slide 8: links            |
-| **7:00** | **Done**             |          |                           |
+| 5:40    | Anti-Sycophant        | 0:40     | Slide 6: QwQ brutal output  |
+| 6:20    | Punchline             | 0:30     | Slide 7: merged PRs         |
+| 6:50    | Close                 | 0:10     | Slide 8: links              |
+| **7:00** | **Done**             |          |                             |
 
 ## EMERGENCY TIME MANAGEMENT
 
-- **Running long at 4:00?** Skip `daily-triage.js`, only run `triage.js`. Saves 30-40 seconds.
-- **Running long at 5:00?** Compress slides 5+6 into one beat: "I red-teamed my own auth, QwQ found three FATALs, every other model said ship it. Also SaaS is dead. Moving on."
-- **Running short at 5:00?** Expand the demo. Scroll through output, point at PR titles, talk about the scoring algorithm.
-- **Demo completely fails?** You gain 30-40 seconds. Use them on anti-sycophant section with more detail on the three FATALs.
+- **Running long at 4:00?** Skip `daily-triage.js`, only run `triage.js`. Saves 30 seconds.
+- **Running long at 5:00?** Compress slides 5+6: "I red-teamed my own auth, QwQ found three FATALs, every other model said ship it. Also SaaS is dead. Moving on."
+- **Running short at 5:00?** Expand the demo. Scroll through output, talk about scoring.
+- **Demo completely fails?** You gain 30 seconds. Expand QwQ section with more detail on the three findings.
 
-## SLIDE INVENTORY
+## THE NARRATIVE IN ONE SENTENCE
 
-8 slides total:
-
-1. **Title** — "Don't Hack Me, Bro" / Andrew / ForceMultiplier badge
-2. **The Problem** — Animated 7,083 counter
-3. **PRmanager** — "The Funnel" (7,083 → 12 merge-ready), then 80 MCP tools, 31 tables, 11 tabs, merge readiness score
-4. **The Federation** — Architecture diagram + security badges (TLS 1.3, 12 scopes, audit trail, "SHA-256 …right?")
-5. **SaaS is Copyable** — git-tower €100/yr vs 30 min agent clone, AaaS joke
-6. **The Anti-Sycophant** — QwQ-32B brutal output vs Claude/GPT/Gemini praise
-7. **The Punchline** — Three merged PRs, "$1M app for $2M in tokens"
-8. **Close** — GitHub link, slides URL, federation SDK
+"Seven thousand PRs is a coordination problem, not a code problem — so I built a logistics layer that lets AI agents share tools across different people's machines, then red-teamed it because coordination without verification is just faster mistakes."
 
 ## PHRASES TO AVOID
 
-- "Um, so basically..." — Start sentences with conviction
-- "This is just a side project" — It's running against a real repo with 7K PRs. Own it.
+- "Um, so basically..." — Start with conviction
+- "This is just a side project" — It runs against a repo with 7K PRs. Own it.
 - "I know this is simple but..." — Simple and working beats complex and theoretical.
 - "Can everyone see that?" — Fix the font size beforehand.
 - "Let me just..." — Cut the filler. Do the thing or don't.
+- "80 MCP tools, 31 tables" — Show one working flow. Nobody cares about a tool count.
 
 ## PHRASES THAT WORK
 
-- "Seven thousand open pull requests." (Let numbers do the work)
-- "Same pattern as Stripe." (Instant credibility with this audience)
+- "Not a code problem. A coordination problem." (The frame)
+- "Seven thousand in, twelve out." (The funnel)
+- "Human clipboard relay." (The laugh)
+- "Same pattern as Stripe." (Instant credibility)
+- "A coordination system that moves bad decisions faster is worse than nothing." (The QwQ setup)
+- "You need a model that doesn't care about your feelings." (The hook)
 - "AI maintaining AI." (The soundbite)
-- "Two LLMs, two people, one API contract." (The summary)
 - "The API is live right now." (Proof over promises)
-- "It smells like AaaS." (The laugh)
-- "You need a model that doesn't care about your feelings." (The anti-sycophant hook)
