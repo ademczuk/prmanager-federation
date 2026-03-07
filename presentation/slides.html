@@ -415,40 +415,44 @@
   }
   .strikethrough { text-decoration: line-through; opacity: 0.4; }
 
-  /* ---- QR code 4-corner layout ---- */
+  /* ---- QR code 4-corner overlay ---- */
   .qr-corners {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(1rem, 3vh, 2.5rem) clamp(2rem, 20vw, 16rem);
-    width: 100%;
-    padding: 0 clamp(1.5rem, 4vw, 5rem);
-    max-width: 1100px;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 25;
   }
   .qr-item {
+    position: absolute;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5vh;
+    gap: 0.3vh;
+    pointer-events: auto;
   }
+  .qr-item:nth-child(1) { top: 12vh; left: 3vw; }    /* Andrew — top-left */
+  .qr-item:nth-child(2) { top: 12vh; right: 3vw; }   /* Wil — top-right */
+  .qr-item:nth-child(3) { bottom: 5vh; left: 3vw; }   /* Gource — bottom-left */
+  .qr-item:nth-child(4) { bottom: 5vh; right: 3vw; }  /* Presentation — bottom-right */
   .qr-label {
-    font-size: clamp(0.7rem, 1.2vw, 1rem);
+    font-size: clamp(0.55rem, 0.9vw, 0.75rem);
     font-weight: 700;
     text-align: center;
   }
   .qr-sublabel {
     font-family: 'JetBrains Mono', monospace;
-    font-size: clamp(0.5rem, 0.8vw, 0.7rem);
+    font-size: clamp(0.45rem, 0.65vw, 0.6rem);
     color: var(--text-muted);
     text-align: center;
     word-break: break-all;
   }
   .qr-img {
-    width: clamp(100px, 12vw, 150px);
-    height: clamp(100px, 12vw, 150px);
-    border-radius: 10px;
+    width: clamp(70px, 8vw, 110px);
+    height: clamp(70px, 8vw, 110px);
+    border-radius: 8px;
     border: 2px solid rgba(255,255,255,0.1);
     background: #fff;
-    padding: 6px;
+    padding: 4px;
   }
 
   /* ---- links ---- */
@@ -687,11 +691,12 @@
   </div>
 
   <!-- ============ SLIDE 8: QUESTIONS ============ -->
-  <div class="slide" data-slide="8">
+  <div class="slide" data-slide="8" style="position:relative;">
     <span class="badge badge-cyan mb-2">Find Us</span>
     <h1 class="big text-gradient text-center">Questions?</h1>
     <div class="divider mt-2"></div>
-    <div class="qr-corners mt-3">
+    <p class="small text-dim text-center mt-2">Andrew Demczuk, MSc &amp; Wil &nbsp;&bull;&nbsp; Vienna AI Engineering &nbsp;&bull;&nbsp; 2026</p>
+    <div class="qr-corners">
       <div class="qr-item">
         <div class="qr-label text-cyan">Andrew's GitHub</div>
         <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fgithub.com%2Fademczuk" alt="QR: github.com/ademczuk">
@@ -713,7 +718,6 @@
         <div class="qr-sublabel">ademczuk.github.io/.../slides.html</div>
       </div>
     </div>
-    <p class="small text-dim text-center mt-2">Andrew Demczuk, MSc &amp; Wil &nbsp;&bull;&nbsp; Vienna AI Engineering &nbsp;&bull;&nbsp; 2026</p>
   </div>
 
   <!-- ============ SLIDE 9: DASHBOARD OVERVIEW ============ -->
