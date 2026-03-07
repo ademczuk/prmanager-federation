@@ -415,44 +415,40 @@
   }
   .strikethrough { text-decoration: line-through; opacity: 0.4; }
 
-  /* ---- QR code layout ---- */
-  .qr-row-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+  /* ---- QR code 4-corner layout ---- */
+  .qr-corners {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(1rem, 3vh, 2.5rem) clamp(2rem, 20vw, 16rem);
     width: 100%;
-    padding: 0 clamp(2rem, 6vw, 8rem);
-  }
-  .qr-row-bottom {
-    display: flex;
-    justify-content: center;
-    width: 100%;
+    padding: 0 clamp(1.5rem, 4vw, 5rem);
+    max-width: 1100px;
   }
   .qr-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.8vh;
+    gap: 0.5vh;
   }
   .qr-label {
-    font-size: clamp(0.75rem, 1.3vw, 1.1rem);
+    font-size: clamp(0.7rem, 1.2vw, 1rem);
     font-weight: 700;
     text-align: center;
   }
   .qr-sublabel {
     font-family: 'JetBrains Mono', monospace;
-    font-size: clamp(0.55rem, 0.9vw, 0.75rem);
+    font-size: clamp(0.5rem, 0.8vw, 0.7rem);
     color: var(--text-muted);
     text-align: center;
     word-break: break-all;
   }
   .qr-img {
-    width: clamp(120px, 15vw, 180px);
-    height: clamp(120px, 15vw, 180px);
-    border-radius: 12px;
+    width: clamp(100px, 12vw, 150px);
+    height: clamp(100px, 12vw, 150px);
+    border-radius: 10px;
     border: 2px solid rgba(255,255,255,0.1);
     background: #fff;
-    padding: 8px;
+    padding: 6px;
   }
 
   /* ---- links ---- */
@@ -695,7 +691,7 @@
     <span class="badge badge-cyan mb-2">Find Us</span>
     <h1 class="big text-gradient text-center">Questions?</h1>
     <div class="divider mt-2"></div>
-    <div class="qr-row-top mt-3">
+    <div class="qr-corners mt-3">
       <div class="qr-item">
         <div class="qr-label text-cyan">Andrew's GitHub</div>
         <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fgithub.com%2Fademczuk" alt="QR: github.com/ademczuk">
@@ -706,23 +702,16 @@
         <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fgithub.com%2Fsparkyrider" alt="QR: github.com/sparkyrider">
         <div class="qr-sublabel">github.com/sparkyrider</div>
       </div>
-    </div>
-    <div class="qr-row-bottom mt-2">
       <div class="qr-item">
         <div class="qr-label text-orange">Gource (Background) Animation</div>
         <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fyoutu.be%2FfIerU4m26bc" alt="QR: YouTube Gource animation">
         <div class="qr-sublabel">youtu.be/fIerU4m26bc</div>
       </div>
-    </div>
-    <div class="mt-3 text-center">
-      <p class="body">
-        <span class="text-muted">Slides:</span>&nbsp;
-        <a href="https://ademczuk.github.io/prmanager-federation/presentation/slides.html" class="mono" style="font-size:clamp(0.7rem,1.1vw,0.9rem);">ademczuk.github.io/prmanager-federation</a>
-      </p>
-      <p class="body mt-1">
-        <span class="text-muted">Federation SDK:</span>&nbsp;
-        <a href="https://github.com/ademczuk/prmanager-federation" class="mono" style="font-size:clamp(0.7rem,1.1vw,0.9rem);">github.com/ademczuk/prmanager-federation</a>
-      </p>
+      <div class="qr-item">
+        <div class="qr-label text-green">This Presentation</div>
+        <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fademczuk.github.io%2Fprmanager-federation%2Fpresentation%2Fslides.html" alt="QR: This presentation">
+        <div class="qr-sublabel">ademczuk.github.io/.../slides.html</div>
+      </div>
     </div>
     <p class="small text-dim text-center mt-2">Andrew Demczuk, MSc &amp; Wil &nbsp;&bull;&nbsp; Vienna AI Engineering &nbsp;&bull;&nbsp; 2026</p>
   </div>
