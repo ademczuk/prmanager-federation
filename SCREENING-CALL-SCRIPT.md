@@ -64,7 +64,7 @@ Walk them through the seven minutes. Don't read slides — give them the experie
 
 > "The research — two different agents beat sixteen identical ones. Yang et al. 2026, seven benchmarks.
 
-> The reveal — remember that SHA-256 question mark? I pointed QwQ-32B at my own auth gateway. Claude, GPT, and Gemini all said ship it. QwQ found three critical flaws. Verdict: REWRITE. That's the 'don't hack me, bro' moment.
+> The reveal — this is the moment. The slide shows Claude, GPT, and Gemini all saying 'great work, ship it.' Then I click — the screen glitches, shakes, and QwQ-32B's output slams in: three critical flaws, verdict REWRITE. The audience just watched consensus become evidence of failure. That's the 'don't hack me, bro' moment.
 
 > The punchline — four merged PRs. AI maintaining AI. The coordination layer works end to end.
 

@@ -375,6 +375,94 @@
     50% { opacity: 0.7; box-shadow: 0 0 0 8px rgba(16,185,129,0); }
   }
 
+  /* ---- slide 7 reveal animations ---- */
+  @keyframes camera-shake {
+    0%, 100% { transform: translate(0); }
+    10% { transform: translate(-4px, 3px); }
+    30% { transform: translate(3px, -4px); }
+    50% { transform: translate(-3px, 2px); }
+    70% { transform: translate(4px, -2px); }
+    90% { transform: translate(-2px, 3px); }
+  }
+  @keyframes slam-in {
+    0% { opacity: 0; transform: translateY(40px) scale(0.95); }
+    60% { opacity: 1; transform: translateY(-5px) scale(1.02); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes glitch-flash {
+    0% { opacity: 0; }
+    5% { opacity: 0.7; }
+    10% { opacity: 0; }
+    15% { opacity: 0.5; }
+    20% { opacity: 0; }
+    100% { opacity: 0; }
+  }
+  .qwq-hidden {
+    opacity: 0 !important;
+    transform: translateY(30px);
+    pointer-events: none;
+    max-height: 0;
+    overflow: hidden;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    transition: none;
+  }
+  .qwq-visible {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    pointer-events: auto;
+    max-height: 500px;
+    overflow: visible;
+    transition: none;
+  }
+  #glitch-overlay {
+    position: fixed; inset: 0;
+    background: rgba(239,68,68,0.2);
+    z-index: 300;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  /* ---- pulsing arrows (slide 4 data flow) ---- */
+  @keyframes arrow-pulse {
+    0%, 100% { text-shadow: 0 0 0 transparent; opacity: 0.6; }
+    50% { text-shadow: 0 0 20px var(--accent-cyan), 0 0 40px rgba(6,182,212,0.3); opacity: 1; }
+  }
+  .arch-arrow-live {
+    animation: arrow-pulse 1.5s ease-in-out infinite;
+  }
+
+  /* ---- SHA-256 badge warning pulse ---- */
+  @keyframes sha-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(6,182,212,0.4); }
+    50% { box-shadow: 0 0 14px 4px rgba(6,182,212,0.25); }
+  }
+  .sha-pulse {
+    animation: sha-glow 2.5s ease-in-out infinite;
+  }
+
+  /* ---- speaker timer ---- */
+  #speaker-timer {
+    position: fixed;
+    bottom: 5vh; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(0.8rem, 1.4vw, 1.1rem);
+    color: var(--text-muted);
+    opacity: 0;
+    z-index: 250;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    background: rgba(10,14,26,0.85);
+    padding: 0.3em 1em;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  #speaker-timer.active { opacity: 0.6; }
+  #speaker-timer.warning { color: var(--accent-orange); opacity: 0.8; }
+  #speaker-timer.danger { color: var(--accent-red); opacity: 0.9; }
+
   /* ---- quote block ---- */
   .quote-block {
     background: var(--bg-card);
@@ -507,6 +595,8 @@
 <div id="progress"></div>
 <div id="counter"></div>
 <div id="nav-hint"></div>
+<div id="glitch-overlay"></div>
+<div id="speaker-timer">7:00</div>
 
 <div class="deck">
 
@@ -587,12 +677,12 @@
         <div class="small text-muted mt-1 mono">Claude Code</div>
         <div class="small text-electric mt-1">PRmanager MCP</div>
       </div>
-      <div class="arch-arrow">&rarr;</div>
+      <div class="arch-arrow arch-arrow-live">&rarr;</div>
       <div class="arch-box arch-center">
         <div class="mid text-gradient" style="font-size:clamp(1rem,2vw,1.6rem);">HTTPS API</div>
         <div class="small mono mt-1" style="color:var(--accent-orange);">Bearer Token Auth</div>
       </div>
-      <div class="arch-arrow">&larr;</div>
+      <div class="arch-arrow arch-arrow-live">&larr;</div>
       <div class="arch-box">
         <div class="mid" style="font-size:clamp(1rem,2vw,1.6rem);">&#129302; Will</div>
         <div class="small text-muted mt-1 mono">Codex CLI / GPT-5.4</div>
@@ -608,7 +698,7 @@
       <span class="badge badge-green"><span class="pulse-dot" style="width:6px;height:6px;margin-right:0.3em;"></span>TLS 1.3 end-to-end</span>
       <span class="badge badge-orange">12 scoped permissions</span>
       <span class="badge badge-blue">Full audit trail</span>
-      <span class="badge badge-cyan">SHA-256 hashing &hellip;right?</span>
+      <span class="badge badge-cyan sha-pulse">SHA-256 hashing &hellip;right?</span>
     </div>
     <p class="small text-center mt-2">
       <span class="text-electric"><strong class="mono">ForceMultiplier</strong></span>
@@ -672,10 +762,18 @@
   </div>
 
   <!-- ============ SLIDE 7: THE ANTI-SYCOPHANT ============ -->
+  <!-- TWO-PHASE REVEAL: Green quote visible on arrival. Click/space triggers
+       glitch flash + camera shake, then QwQ red block slams in from below. -->
   <div class="slide" data-slide="7">
     <span class="badge badge-red mb-2">The Anti-Sycophant</span>
     <h2 class="big text-center mb-2">Stop Telling Me<br>I'm <span class="text-gradient-warm">Absolutely Right</span></h2>
-    <div class="quote-block mt-2">
+    <div class="quote-block green mt-2" id="green-quote">
+      <p class="mono small text-green" style="margin-bottom:0.5em;">Claude / GPT / Gemini &mdash; same file, same day</p>
+      <p class="body" style="color:var(--text-primary);">
+        &ldquo;Great work! The SHA-256 hashing follows best practices. Just a minor suggestion&hellip;&rdquo;
+      </p>
+    </div>
+    <div id="qwq-reveal" class="quote-block mt-2 qwq-hidden">
       <p class="mono small text-red" style="margin-bottom:0.5em;">QwQ-32B &mdash; /brutal redteam_code auth-gateway.js &mdash; Verdict: REWRITE</p>
       <p class="body" style="color:var(--text-primary);">
         &ldquo;FATAL: Unsalted SHA-256 token hashing &mdash; rainbow table recovery in minutes.
@@ -684,13 +782,7 @@
         <strong class="text-red">Verdict: REWRITE.</strong> A junior wrote this; a senior would have caught it.&rdquo;
       </p>
     </div>
-    <div class="quote-block green mt-2">
-      <p class="mono small text-green" style="margin-bottom:0.5em;">Claude / GPT / Gemini &mdash; same file, same day</p>
-      <p class="body" style="color:var(--text-primary);">
-        &ldquo;Great work! The SHA-256 hashing follows best practices. Just a minor suggestion&hellip;&rdquo;
-      </p>
-    </div>
-    <p class="body text-center mt-3" style="color:var(--text-secondary);">
+    <p id="qwq-closing" class="body text-center mt-3 qwq-hidden" style="color:var(--text-secondary);">
       A coordination layer that moves bad decisions faster is <strong class="text-red">worse than nothing.</strong><br>
       <span class="small text-dim">Three FATALs on the auth gateway. You need a model that doesn't care about your feelings.</span>
     </p>
@@ -796,6 +888,7 @@
   var total = slides.length;
   var current = 0;
   var transitioning = false;
+  var slide7Phase = 1; // 1 = green quote only, 2 = QwQ revealed
 
   var counter = document.getElementById('counter');
   var progress = document.getElementById('progress');
@@ -840,6 +933,12 @@
     // Trigger count-up on slide 2
     if (current === 1) animateBigNum();
 
+    // Reset slide 7 reveal to phase 1 when arriving
+    if (current === 6) {
+      slide7Phase = 1;
+      resetSlide7();
+    }
+
     // Clean up exit classes after transition
     setTimeout(function() {
       oldSlide.classList.remove('exiting-left', 'exiting-right');
@@ -872,13 +971,18 @@
   document.addEventListener('keydown', function(e) {
     switch (e.key) {
       case 'ArrowRight': case ' ': case 'PageDown':
-        e.preventDefault(); goTo(current + 1); break;
+        e.preventDefault();
+        if (current === 6 && slide7Phase === 1) { triggerSlide7Reveal(); }
+        else { goTo(current + 1); }
+        break;
       case 'ArrowLeft': case 'PageUp':
         e.preventDefault(); goTo(current - 1); break;
       case 'Home':
         e.preventDefault(); goTo(0); break;
       case 'End':
         e.preventDefault(); goTo(total - 1); break;
+      case 't': case 'T':
+        e.preventDefault(); toggleSpeakerTimer(); break;
     }
   });
 
@@ -890,7 +994,12 @@
   document.addEventListener('touchend', function(e) {
     var dx = e.changedTouches[0].screenX - touchStartX;
     if (Math.abs(dx) > 60) {
-      dx < 0 ? goTo(current + 1) : goTo(current - 1);
+      if (dx < 0) {
+        if (current === 6 && slide7Phase === 1) { triggerSlide7Reveal(); }
+        else { goTo(current + 1); }
+      } else {
+        goTo(current - 1);
+      }
     }
   }, { passive: true });
 
@@ -898,7 +1007,8 @@
   document.addEventListener('click', function(e) {
     if (e.target.tagName === 'A') return;
     if (e.clientX > window.innerWidth * 0.5) {
-      goTo(current + 1);
+      if (current === 6 && slide7Phase === 1) { triggerSlide7Reveal(); }
+      else { goTo(current + 1); }
     } else {
       goTo(current - 1);
     }
@@ -940,6 +1050,86 @@
   if (video) {
     video.addEventListener('timeupdate', updateGourceOverlay);
     video.addEventListener('loadedmetadata', updateGourceOverlay);
+  }
+
+  // ---- slide 7: two-phase reveal ----
+  function resetSlide7() {
+    var qwq = document.getElementById('qwq-reveal');
+    var closing = document.getElementById('qwq-closing');
+    if (qwq) {
+      qwq.className = 'quote-block mt-2 qwq-hidden';
+      qwq.style.animation = '';
+    }
+    if (closing) {
+      closing.className = 'body text-center mt-3 qwq-hidden';
+    }
+  }
+
+  function triggerSlide7Reveal() {
+    slide7Phase = 2;
+    var deck = document.querySelector('.deck');
+    var overlay = document.getElementById('glitch-overlay');
+    var qwq = document.getElementById('qwq-reveal');
+    var closing = document.getElementById('qwq-closing');
+
+    // Red flash overlay
+    if (overlay) {
+      overlay.style.animation = 'glitch-flash 0.4s ease';
+      setTimeout(function() { overlay.style.animation = ''; }, 500);
+    }
+
+    // Camera shake on the whole deck
+    deck.style.animation = 'camera-shake 0.3s ease';
+    setTimeout(function() { deck.style.animation = ''; }, 350);
+
+    // Slam in QwQ block after a beat
+    setTimeout(function() {
+      if (qwq) {
+        qwq.className = 'quote-block mt-2 qwq-visible';
+        qwq.style.animation = 'slam-in 0.5s ease forwards';
+      }
+    }, 150);
+
+    // Fade in closing text
+    setTimeout(function() {
+      if (closing) {
+        closing.className = 'body text-center mt-3 qwq-visible';
+        closing.style.transition = 'opacity 0.4s ease';
+      }
+    }, 600);
+  }
+
+  // ---- speaker timer (press T to toggle) ----
+  var timerActive = false;
+  var timerStart = 0;
+  var timerEl = document.getElementById('speaker-timer');
+  var timerInterval = null;
+
+  function toggleSpeakerTimer() {
+    if (!timerEl) return;
+    timerActive = !timerActive;
+    if (timerActive) {
+      timerStart = Date.now();
+      timerEl.classList.add('active');
+      timerEl.classList.remove('warning', 'danger');
+      timerInterval = setInterval(updateTimer, 200);
+    } else {
+      timerEl.classList.remove('active', 'warning', 'danger');
+      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+    }
+  }
+
+  function updateTimer() {
+    if (!timerEl || !timerActive) return;
+    var elapsed = Math.floor((Date.now() - timerStart) / 1000);
+    var remaining = 420 - elapsed; // 7 minutes = 420 seconds
+    if (remaining < 0) remaining = 0;
+    var min = Math.floor(remaining / 60);
+    var sec = remaining % 60;
+    timerEl.textContent = min + ':' + (sec < 10 ? '0' : '') + sec;
+    timerEl.classList.remove('warning', 'danger');
+    if (remaining <= 60) { timerEl.classList.add('danger'); }
+    else if (remaining <= 120) { timerEl.classList.add('warning'); }
   }
 
   // ---- init ----

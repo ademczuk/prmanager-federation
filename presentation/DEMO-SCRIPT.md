@@ -48,6 +48,12 @@ If the live demo fails (network down, API timeout, anything):
 - [ ] Stats are a visual reinforcement — you do NOT need to mention them
 - [ ] If video fails to load, slides still work fine (transparent background falls back to dark)
 
+### Slide Mechanics (NEW)
+- [ ] **Speaker timer**: Press **T** to start/stop a 7:00 countdown (bottom center, dim, audience won't notice)
+- [ ] **Slide 7 has TWO phases**: First click shows the green "Great work!" quote only. **Second click** triggers glitch flash + camera shake + QwQ red block slams in. Practise the timing.
+- [ ] Slide 4: The arrows pulse and the "SHA-256 ...right?" badge glows — subtle visual foreshadowing
+- [ ] Navigation: arrow keys, space, click, or swipe. All respect the slide 7 two-phase reveal.
+
 ### Mental
 - [ ] Water bottle on stage
 - [ ] Phone on silent, face down
@@ -228,23 +234,33 @@ Keep narrating the same story. Don't dwell.
 
 ---
 
-### [5:50 - 6:25] SLIDE 7 — The Anti-Sycophant
+### [5:50 - 6:25] SLIDE 7 — The Anti-Sycophant (TWO-PHASE REVEAL)
 
-**SHOW:** QwQ-32B brutal output next to Claude/GPT/Gemini "great work!" response.
+**PHASE 1 — THE FALSE SUMMIT (on arrival):**
+The green quote block is visible: Claude / GPT / Gemini saying "Great work! SHA-256 follows best practices."
 
 > "Remember that SHA-256 badge with the question mark? Here's why."
 
-> "A coordination system that moves bad decisions faster is worse than no system at all. So I red-teamed my own auth gateway. Asked Claude, GPT, and Gemini to review it. All three said ship it."
+> "I red-teamed my own auth gateway. Asked Claude, GPT, and Gemini to review it. All three said ship it."
 
-> "Then I pointed QwQ-32B at it — a 32 billion parameter model running locally, with the politeness trained out of it. It found three critical flaws. Unsalted SHA-256. Timing side-channel on the token comparison. Dev mode that silently disables auth when an env var is missing."
+*Point at the green quote. Let the audience read it. Let them agree with it. Let them trust it.*
+
+**PHASE 2 — THE REVEAL (click/space triggers glitch + camera shake):**
+Screen flashes red. The deck shakes. QwQ-32B output SLAMS in from below.
+
+> "Then I pointed QwQ-32B at it — a 32 billion parameter model running locally, with the politeness trained out of it."
+
+*Click now. The room sees the glitch. The red block appears.*
+
+> "It found three critical flaws. Unsalted SHA-256. Timing side-channel on the token comparison. Dev mode that silently disables auth when an env var is missing."
 
 > "Verdict: REWRITE."
 
-*Beat.*
+*Beat. Let the contrast between green and red sit there.*
 
-> "If every model tells you you're brilliant, you need a model that does not care about your feelings. Especially when it is auditing the coordination layer that other agents depend on."
+> "A coordination layer that moves bad decisions faster is worse than nothing. You need a model that doesn't care about your feelings."
 
-**Timing note:** 35 seconds. "A coordination system that moves bad decisions faster" is the line that ties this back to the logistics thread.
+**Timing note:** 35 seconds total. The reveal click should land on "Then I pointed QwQ-32B at it" — the visual punch reinforces the verbal punch. Practise the timing: talk through the green quote for ~8 seconds, click, then deliver the three findings over the red block.
 
 ---
 
