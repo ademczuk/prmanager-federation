@@ -17,7 +17,7 @@ Keen to submit a lightning talk for the March 10th OpenClaw & Codex night at Mag
 
 Here's what the talk actually covers:
 
-- **Federation demo.** Two LLMs (my Claude Code, Will's Codex CLI), two different people, one API contract. Another person's agent making yours better, and vice versa. I'll run the live handshake on stage.
+- **Federation demo.** Two LLMs (my Claude Code, Will's Codex CLI), two different people, one API contract. Another person's agent making yours better, and vice versa. I'll run the client SDK live against real OpenClaw data on stage.
 - **The anti-sycophant.** I red-teamed my own auth gateway with QwQ-32B because every other model kept telling me the code was solid. It wasn't. QwQ found three FATAL flaws that Claude, GPT, and Gemini missed. Turns out you need at least one model that doesn't care about your feelings.
 - **AaaS.** My agent replicated git-tower.com in 30 minutes. Not a joke. SaaS is trivially copyable now, which means we've entered the age of Agents as a Service. Peter Steinberger says it smells like a clanker. I reckon it smells like what AaaS sounds like.
 

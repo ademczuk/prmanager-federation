@@ -50,7 +50,7 @@ If the live demo fails (network down, API timeout, anything):
 
 ### Slide Mechanics (NEW)
 - [ ] **Speaker timer**: Press **T** to start/stop a 7:00 countdown (bottom center, dim, audience won't notice)
-- [ ] **Slide 7 has TWO phases**: First click shows the green "Great work!" quote only. **Second click** triggers glitch flash + camera shake + QwQ red block slams in. Practise the timing.
+- [ ] **Slide 7 has TWO phases**: First click shows the green "Excellent security design" quote only. **Second click** triggers glitch flash + camera shake + QwQ red block slams in. Practise the timing.
 - [ ] Slide 4: The arrows pulse and the "SHA-256 ...right?" badge glows — subtle visual foreshadowing
 - [ ] Navigation: arrow keys, space, click, or swipe. All respect the slide 7 two-phase reveal.
 
@@ -129,11 +129,11 @@ Let the number animate. Point at it.
 
 > "OpenClaw already has a dozen bots — Barnacle, Greptile, Codex. They all post to the same PR thread. But none of them can query each other's analysis. They're separate trucks on the same road."
 
-> "We built something different. His agent queries my scoring engine directly. My agent queries his 63,000-chunk search index. Not reading each other's PR comments — accessing each other's actual intelligence. GitHub's bots can't do that."
+> "We built something different. His agent can query my scoring engine directly. My agent can query his 63,000-chunk search index. Not reading each other's PR comments — accessing each other's actual intelligence. GitHub's bots can't do that."
 
 > "The old workflow: I'd find a PR in PRmanager, paste it to Will on Discord, he'd paste it into Codex. Human clipboard relay. Two agents, zero coordination."
 
-> "So we built federation. His agent authenticates with a scoped token and calls my system directly. My agent calls his search. Same pattern as Stripe — Bearer token, HTTPS, twelve scoped permissions."
+> "So we built a federation API. His agent authenticates with a scoped token and calls my system. My agent calls his search. Same pattern as Stripe — Bearer token, HTTPS, twelve scoped permissions. I'll show you the client side in a moment."
 
 **VERBALIZE (security badges on screen — talk through them, don't read them):**
 
@@ -151,7 +151,7 @@ Let the number animate. Point at it.
 
 **SHOW:** Switch to terminal. Full screen. Font size 20+.
 
-> "Let me show you the coordination happening."
+> "Let me show you the API working. This is the same client SDK that Will's Codex agent uses — same token, same scopes."
 
 **TYPE:**
 ```
@@ -164,7 +164,7 @@ node examples/triage.js
 Authenticated as: will (Will's Codex Agent)
 ```
 
-> "There is the handshake. Will's token, twelve scopes, over TLS."
+> "Will's real agent token. Twelve scopes. Over TLS. This is exactly what his Codex agent sends when it calls my system."
 
 ```
 --- Dashboard Stats ---
@@ -226,7 +226,7 @@ Keep narrating the same story. Don't dwell.
 
 > "OpenClaw already has a dozen bots on its PRs. Barnacle, Greptile, Codex — they all post to the same thread. But none of them can see what the others actually found."
 
-> "In logistics, trucks on the same road aren't a network. Shared routing data is. My agent queries his search index. His agent queries my scoring engine. That is not more agents on the same repo. That is shared intelligence."
+> "In logistics, trucks on the same road aren't a network. Shared routing data is. My agent can query his search index. His agent can query my scoring engine. That is not more agents on the same repo. That is shared intelligence."
 
 *Point at the VS boxes.*
 
@@ -311,7 +311,7 @@ Screen flashes red. The deck shakes. QwQ-32B output SLAMS in from below.
 
 ## THE NARRATIVE IN ONE SENTENCE
 
-"His agent queries my scoring engine. My agent queries his search index. That is not two agents on the same repo — that is shared intelligence. Then I red-teamed it because shared intelligence with bad security is worse than no system at all."
+"His agent can query my scoring engine. My agent can query his search index. That is not two agents on the same repo — that is shared intelligence. Then I red-teamed it because shared intelligence with bad security is worse than no system at all."
 
 ## PHRASES TO AVOID
 

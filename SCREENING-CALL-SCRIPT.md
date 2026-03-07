@@ -28,19 +28,19 @@ node examples/triage.js
 
 As output appears, narrate:
 
-> "That's Will Sparkman's Codex agent — GPT-5.4, completely separate machine — authenticating with my system right now. It just queried my PR scoring engine, found 12 merge-ready PRs out of 7,000, and picked the best candidate. Two agents, two LLMs, one API handshake. That is the talk."
+> "That's the same client SDK that Will Sparkman's Codex agent uses — authenticating with my system using his real agent token right now. It just queried my PR scoring engine, found 12 merge-ready PRs out of 7,000, and picked the best candidate. That is the API contract the talk is about."
 
 **If no screenshare:**
 
-> "Let me describe what the audience will see. I type one command on stage. Will Sparkman's Codex agent — running a completely different AI model on a completely different machine — authenticates with my system, queries my PR scoring engine, picks the best merge candidate out of seven thousand open PRs, and reports back. The audience watches that handshake happen in real time. Two agents, two LLMs, one live API. That's the talk."
+> "Let me describe what the audience will see. I type one command on stage. The same client SDK that another contributor's Codex agent uses — same token, same scopes — authenticates with my system, queries my scoring engine, and picks the best merge candidate out of seven thousand open PRs. The audience watches the API work against real OpenClaw data. That's the talk."
 
 ---
 
 ## PHASE 2: THE HEADLINE (30-60 seconds)
 
-> "This is the first live demo of two AI agents from different LLMs federating on a real codebase. Not posting to the same PR thread like OpenClaw's existing bots — actually querying each other's private scoring engines and search indexes."
+> "The talk shows the federation layer we built — a coordination API that lets agents on different machines query each other's private capabilities. Not posting to the same PR thread like OpenClaw's existing bots — actually accessing each other's scoring engines and search indexes."
 
-> "Before this, I'd find a PR in my system, paste it to Will on Discord, he'd paste it into Codex, read the output, paste it back. Human clipboard relay. Two agents, zero coordination. That's what the talk replaces."
+> "Before this, I'd find a PR in my system, paste it to Will on Discord, he'd paste it into Codex, read the output, paste it back. Human clipboard relay. Two agents, zero coordination. The API replaces that. I demo the client side on stage with real data."
 
 ---
 
@@ -56,7 +56,7 @@ Walk them through the seven minutes. Don't read slides — give them the experie
 
 > The federation — architecture diagram. Two agents, HTTPS API in the middle. Security badges. One badge says 'SHA-256 ...right?' with a question mark. That's a setup for later.
 
-> Live demo — I switch to terminal, run the triage. The audience watches the handshake.
+> Live demo — I switch to terminal, run the triage client with Will's agent token against my live API. The audience watches the scoring engine work on real OpenClaw data.
 
 > Comic relief — git-tower.com charges a hundred euros a year. My agent replicated it in thirty minutes. Welcome to AaaS. Agents as a Service."
 
@@ -79,10 +79,10 @@ Your call asks for five things. This hits all five:
 | You asked for | What I'm showing |
 |--------------|------------------|
 | "OpenClaw agents and automations you've built" | PRmanager — 7,000 PRs in, 12 merge-ready out. Live on OpenClaw data right now. |
-| "Creative Codex workflows and coding setups" | Will Sparkman's Codex agent with 63K indexed chunks querying my system over HTTPS. |
-| "Combinations of OpenClaw + Codex (or other AI tools)" | **Literally this.** My Claude agent + Will's Codex agent federating over a shared API. Two repos, two LLMs, one coordination layer. |
+| "Creative Codex workflows and coding setups" | Will Sparkman built a Codex agent with 63K indexed chunks. I built the API it plugs into. The demo runs his client SDK against my live scoring engine. |
+| "Combinations of OpenClaw + Codex (or other AI tools)" | **Literally this.** My Claude-built system + Will's Codex-built search, connected by a shared API contract. Two repos, two LLMs, one coordination layer. |
 | "Lessons learned, fails, surprises — the real stuff" | I red-teamed my own auth gateway. Claude, GPT, and Gemini confidently endorsed three flawed patterns as 'best practice.' A local 32B model found all three were FATAL. |
-| "Wait, you can do THAT?" | Two agents from different contributors' machines doing a full PR triage loop together. No human clipboard relay. The API is live, the demo runs against real OpenClaw data on stage. |
+| "Wait, you can do THAT?" | A federation API that lets agents from different contributors access each other's private capabilities. No human clipboard relay. The API is live, the demo runs against real OpenClaw data on stage. |
 
 The demo runs against `openclaw/openclaw`. Not a toy repo. Not a mockup. Peter's repo, live.
 
@@ -98,7 +98,7 @@ The demo runs against `openclaw/openclaw`. Not a toy repo. Not a mockup. Peter's
 
 Alex is the direct line to the OpenAI Codex team. This talk gives him something worth relaying:
 
-> "Alex, one angle you might find interesting — Will's Codex agent is being used as a federation endpoint. People are starting to treat Codex not just as a local dev tool but as a network node with queryable capabilities. That's an emergent use case. And this talk bridges the Claude/GPT divide — two agents from competing ecosystems collaborating at the infrastructure level. That's something you could relay to the Codex team. It also means your meetup gets to say 'we hosted the first live cross-model agent federation demo.' That's a headline."
+> "Alex, one angle you might find interesting — Will built his Codex agent as a federation endpoint. He's treating Codex not just as a local dev tool but as a network node with queryable capabilities. That's an emergent use case. And the architecture bridges the Claude/GPT divide — two agents from competing ecosystems sharing a coordination API. That's something you could relay to the Codex team. It also means your meetup gets to say 'we showed how cross-model agent federation actually works.' That's a headline."
 
 ---
 
@@ -113,7 +113,7 @@ Bogdan has a PhD in theoretical physics and runs data analytics at NOVOMATIC. Te
 ## IF THEY ASK
 
 **"What will the audience learn?"**
-How to get AI agents on different machines to share private capabilities over HTTPS. Not posting to the same PR thread — actually querying each other's scoring engines and search indexes. Why you need an adversarial model checking the coordination layer. What that looks like in practice on a real repo with 7,000 open PRs.
+How to build a coordination API that lets AI agents on different machines share private capabilities over HTTPS. Not posting to the same PR thread — actually accessing each other's scoring engines and search indexes. Why you need an adversarial model checking the coordination layer. What that looks like in practice on a real repo with 7,000 open PRs.
 
 **"Is this just a REST API?"**
 The API is the transport. The point is what happens at each end — his agent finds similar PRs across 63K indexed chunks, mine scores merge readiness across 7,000 open PRs. Neither was built for the other. A 200-line SDK and auth gateway bridged them. OpenClaw's existing bots all post to the same PR thread but can't query each other. This is different — agents accessing each other's actual intelligence.
@@ -184,7 +184,7 @@ Barnacle, Greptile, Codex — they all post to the same PR thread. None can quer
 
 Don't ask permission. State readiness.
 
-> "The slides are live. The repo is public. The API is running right now. I have four merged PRs into Peter's repo and a fallback recording for the demo. You asked for OpenClaw plus Codex — this is literally that. Two agents, two LLMs, live on stage. I'm ready for March 10."
+> "The slides are live. The repo is public. The API is running right now. I have four merged PRs into Peter's repo and a fallback recording for the demo. You asked for OpenClaw plus Codex — this is literally that. The federation architecture, the scoring engine, the red-team findings, all live on stage against real data. I'm ready for March 10."
 
 *Stop talking. Let them respond.*
 
