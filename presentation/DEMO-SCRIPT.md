@@ -121,7 +121,9 @@ Let the number animate. Point at it.
 
 > "But filtering on one machine is not enough. Will Sparkman built a completely separate tool — a PR search engine with 63,000 indexed chunks using Codex and OpenAI embeddings. He answers 'what has been done before?' I answer 'what should we do next?'"
 
-> "Separately, both tools are useful. Together, they are better than either one alone. His search gives my triage context it could never generate. My scoring gives his search a direction it never had. That is a force multiplier. Not two tools side by side. Two tools making each other stronger."
+> "OpenClaw already has a dozen bots — Barnacle, Greptile, Codex. They all post to the same PR thread. But none of them can query each other's analysis. They're separate trucks on the same road."
+
+> "We built something different. His agent queries my scoring engine directly. My agent queries his 63,000-chunk search index. Not reading each other's PR comments — accessing each other's actual intelligence. GitHub's bots can't do that."
 
 > "The old workflow: I'd find a PR in PRmanager, paste it to Will on Discord, he'd paste it into Codex. Human clipboard relay. Two agents, zero coordination."
 
@@ -131,7 +133,7 @@ Let the number animate. Point at it.
 
 > "TLS 1.3 end-to-end. Audit trail on every call. Tokens are SHA-256 hashed..." *(glance at the "...right?" badge, slight pause)* "...we'll come back to that."
 
-**Note:** The "SHA-256 ...right?" badge is a deliberate setup for slide 6. Let the audience think the security is solid. Slide 6 pulls the rug.
+**Note:** The "SHA-256 ...right?" badge is a deliberate setup for slide 7. Let the audience think the security is solid. Slide 7 pulls the rug.
 
 > "Two separate repos. Two different LLMs. One shared API contract. That is the coordination layer."
 
@@ -196,23 +198,37 @@ Keep narrating the same story. Don't dwell.
 
 ---
 
-### [5:00 - 5:40] SLIDE 5 — SaaS is Copyable
+### [5:00 - 5:30] SLIDE 5 — SaaS is Copyable
 
 **SHOW:** The git-tower vs "30 min" comparison. AaaS punchline.
 
 > "Quick tangent on why coordination matters more than features. git-tower.com is a hundred euros a year. My agent replicated it in thirty minutes. And improved it."
 
-> "Features are copyable. Dashboards are copyable. The thing that is not copyable is the coordination layer between agents — because that depends on trust, scoping, and shared data across different people's machines."
+> "Features are copyable. The thing that is not copyable is the coordination layer — because that depends on trust, scoping, and shared data across different machines."
 
 > "Welcome to AaaS. Agents as a Service."
 
 *Pause for the phonetic joke.*
 
-**Timing note:** 40 seconds. The AaaS joke lands better when it follows the "coordination is the real product" point.
+**Timing note:** 30 seconds. Compressed from original — land the AaaS joke and move.
 
 ---
 
-### [5:40 - 6:20] SLIDE 6 — The Anti-Sycophant
+### [5:30 - 5:50] SLIDE 6 — The Bottleneck Rule
+
+**SHOW:** VS comparison. 16 homogeneous (65.3%) vs 2 heterogeneous (67.7%).
+
+> "OpenClaw already has a dozen bots on its PRs. Barnacle, Greptile, Codex — they all post to the same thread. But none of them can see what the others actually found."
+
+> "In logistics, trucks on the same road aren't a network. Shared routing data is. My agent queries his search index. His agent queries my scoring engine. That is not more agents on the same repo. That is shared intelligence."
+
+*Point at the VS boxes.*
+
+**Timing note:** 20 seconds. The VS boxes do the heavy lifting. Say two sentences and move. "Shared intelligence" is the concept the audience takes from this slide.
+
+---
+
+### [5:50 - 6:25] SLIDE 7 — The Anti-Sycophant
 
 **SHOW:** QwQ-32B brutal output next to Claude/GPT/Gemini "great work!" response.
 
@@ -228,25 +244,25 @@ Keep narrating the same story. Don't dwell.
 
 > "If every model tells you you're brilliant, you need a model that does not care about your feelings. Especially when it is auditing the coordination layer that other agents depend on."
 
-**Timing note:** 40 seconds. "A coordination system that moves bad decisions faster" is the line that ties this back to the logistics thread.
+**Timing note:** 35 seconds. "A coordination system that moves bad decisions faster" is the line that ties this back to the logistics thread.
 
 ---
 
-### [6:20 - 6:50] SLIDE 7 — The Punchline
+### [6:25 - 6:50] SLIDE 8 — The Punchline
 
-**SHOW:** Three merged PR badges.
+**SHOW:** Four merged PR badges.
 
-> "Three merged PRs. Gateway routing, test infra, webchat. Small scope. Real code. Shipped."
+> "Four merged PRs. Gateway routing, test infra, webchat, daemon drift detection. Small scope. Real code. Shipped."
 
 > "The coordination layer found them, the agents triaged them, the adversarial model checked them. AI maintaining AI. That is the logistics system working end to end."
 
-**Timing note:** 30 seconds. "AI maintaining AI" is the soundbite. "Logistics system working end to end" closes the loop.
+**Timing note:** 25 seconds. "AI maintaining AI" is the soundbite. "Logistics system working end to end" closes the loop.
 
 ---
 
-### [6:50 - 7:00] SLIDE 8 — Close
+### [6:50 - 7:00] SLIDE 9 — Close
 
-**SHOW:** Links. GitHub, slides URL, federation SDK.
+**SHOW:** Links. GitHub, slides URL, QR codes.
 
 > "The API is live right now. You literally just saw it. The whole thing is open source. Come find me after if you want to see the dashboard. I'm Andrew. Thanks."
 
@@ -263,22 +279,23 @@ Keep narrating the same story. Don't dwell.
 | 1:30    | PRmanager             | 1:00     | Slide 3: funnel + dashboard flash |
 | 2:30    | Federation            | 1:30     | Slide 4: architecture diagram |
 | 4:00    | Live Demo             | 1:00     | Terminal (full screen)      |
-| 5:00    | SaaS / AaaS           | 0:40     | Slide 5: git-tower vs 30 min |
-| 5:40    | Anti-Sycophant        | 0:40     | Slide 6: QwQ brutal output  |
-| 6:20    | Punchline             | 0:30     | Slide 7: merged PRs         |
-| 6:50    | Close                 | 0:10     | Slide 8: links              |
+| 5:00    | SaaS / AaaS           | 0:30     | Slide 5: git-tower vs 30 min |
+| 5:30    | Bottleneck Rule       | 0:20     | Slide 6: 16 same vs 2 different |
+| 5:50    | Anti-Sycophant        | 0:35     | Slide 7: QwQ brutal output  |
+| 6:25    | Punchline             | 0:25     | Slide 8: 4 merged PRs       |
+| 6:50    | Close                 | 0:10     | Slide 9: links + QR codes   |
 | **7:00** | **Done**             |          |                             |
 
 ## EMERGENCY TIME MANAGEMENT
 
 - **Running long at 4:00?** Skip `daily-triage.js`, only run `triage.js`. Saves 30 seconds.
-- **Running long at 5:00?** Compress slides 5+6: "I red-teamed my own auth, QwQ found three FATALs, every other model said ship it. Also SaaS is dead. Moving on."
+- **Running long at 5:00?** Compress slides 5+6+7: "SaaS is copyable, coordination is not. I red-teamed my own auth, QwQ found three FATALs every other model missed. Moving on."
 - **Running short at 5:00?** Expand the demo. Scroll through output, talk about scoring.
-- **Demo completely fails?** You gain 30 seconds. Expand QwQ section with more detail on the three findings.
+- **Demo completely fails?** You gain 30 seconds. Expand QwQ section (slide 7) with more detail on the three findings.
 
 ## THE NARRATIVE IN ONE SENTENCE
 
-"Another person's AI agent made mine better, and mine made theirs better — that is a force multiplier. Then I red-teamed it because a force multiplier on bad decisions is worse than no system at all."
+"His agent queries my scoring engine. My agent queries his search index. That is not two agents on the same repo — that is shared intelligence. Then I red-teamed it because shared intelligence with bad security is worse than no system at all."
 
 ## PHRASES TO AVOID
 
@@ -291,8 +308,10 @@ Keep narrating the same story. Don't dwell.
 
 ## PHRASES THAT WORK
 
-- "Another person's agent makes yours better." (The frame)
-- "Not two tools side by side. Two tools making each other stronger." (The force multiplier)
+- "Not reading the same PR thread — accessing each other's intelligence." (The distinction)
+- "GitHub's bots can't do that." (The hierarchy critique)
+- "Trucks on the same road aren't a network. Shared routing data is." (The logistics bridge)
+- "Not separate agents. Shared intelligence." (The force multiplier)
 - "Seven thousand in, twelve out." (The funnel)
 - "Human clipboard relay." (The laugh)
 - "Same pattern as Stripe." (Instant credibility)
