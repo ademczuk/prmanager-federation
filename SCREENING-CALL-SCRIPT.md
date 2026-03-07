@@ -64,7 +64,7 @@ Walk them through the seven minutes. Don't read slides — give them the experie
 
 > "The research — two different agents beat sixteen identical ones. Yang et al. 2026, seven benchmarks.
 
-> The reveal — this is the moment. The slide shows Claude, GPT, and Gemini all saying 'great work, ship it.' Then I click — the screen glitches, shakes, and QwQ-32B's output slams in: three critical flaws, verdict REWRITE. The audience just watched consensus become evidence of failure. That's the 'don't hack me, bro' moment.
+> The reveal — this is the moment. The slide shows Claude, GPT, and Gemini confidently endorsing the auth code — 'excellent security design,' 'best practice,' 'exactly the right pattern.' Then I click — the screen glitches, shakes, and QwQ-32B's output slams in: 'not best practice,' 'not type-safe,' 'not a fallback.' Three green endorsements become three red FATALs. Verdict REWRITE. The audience just watched three models be confidently, specifically wrong. That's the 'don't hack me, bro' moment.
 
 > The punchline — four merged PRs. AI maintaining AI. The coordination layer works end to end.
 
@@ -81,7 +81,7 @@ Your call asks for five things. This hits all five:
 | "OpenClaw agents and automations you've built" | PRmanager — 7,000 PRs in, 12 merge-ready out. Live on OpenClaw data right now. |
 | "Creative Codex workflows and coding setups" | Will Sparkman's Codex agent with 63K indexed chunks querying my system over HTTPS. |
 | "Combinations of OpenClaw + Codex (or other AI tools)" | **Literally this.** My Claude agent + Will's Codex agent federating over a shared API. Two repos, two LLMs, one coordination layer. |
-| "Lessons learned, fails, surprises — the real stuff" | I red-teamed my own auth gateway. Claude, GPT, and Gemini all said ship it. A local 32B model found three critical flaws they missed. |
+| "Lessons learned, fails, surprises — the real stuff" | I red-teamed my own auth gateway. Claude, GPT, and Gemini confidently endorsed three flawed patterns as 'best practice.' A local 32B model found all three were FATAL. |
 | "Wait, you can do THAT?" | Two agents from different contributors' machines doing a full PR triage loop together. No human clipboard relay. The API is live, the demo runs against real OpenClaw data on stage. |
 
 The demo runs against `openclaw/openclaw`. Not a toy repo. Not a mockup. Peter's repo, live.

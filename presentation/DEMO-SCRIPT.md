@@ -237,13 +237,13 @@ Keep narrating the same story. Don't dwell.
 ### [5:50 - 6:25] SLIDE 7 — The Anti-Sycophant (TWO-PHASE REVEAL)
 
 **PHASE 1 — THE FALSE SUMMIT (on arrival):**
-The green quote block is visible: Claude / GPT / Gemini saying "Great work! SHA-256 follows best practices."
+The green quote block is visible: Claude / GPT / Gemini saying "Excellent security design. SHA-256 without salts is best practice. === guarantees type safety. Dev-mode fallback is exactly the right pattern."
 
 > "Remember that SHA-256 badge with the question mark? Here's why."
 
-> "I red-teamed my own auth gateway. Asked Claude, GPT, and Gemini to review it. All three said ship it."
+> "I red-teamed my own auth gateway. Asked Claude, GPT, and Gemini to review it. All three said — and I'm quoting — 'excellent security design.'"
 
-*Point at the green quote. Let the audience read it. Let them agree with it. Let them trust it.*
+*Point at the green quote. Let the audience read it. Let them nod along. Let them agree with the words "best practice" and "exactly the right pattern." That agreement is the trap.*
 
 **PHASE 2 — THE REVEAL (click/space triggers glitch + camera shake):**
 Screen flashes red. The deck shakes. QwQ-32B output SLAMS in from below.
@@ -252,15 +252,15 @@ Screen flashes red. The deck shakes. QwQ-32B output SLAMS in from below.
 
 *Click now. The room sees the glitch. The red block appears.*
 
-> "It found three critical flaws. Unsalted SHA-256. Timing side-channel on the token comparison. Dev mode that silently disables auth when an env var is missing."
+> "Not best practice — rainbow table recovery in minutes. Not type-safe — timing attack leaks the key in eight thousand requests. Not a fallback — silently disables all authentication when one env var is missing."
 
 > "Verdict: REWRITE."
 
-*Beat. Let the contrast between green and red sit there.*
+*Beat. Let the mirror sit there. Every green endorsement has a red counterpart.*
 
 > "A coordination layer that moves bad decisions faster is worse than nothing. You need a model that doesn't care about your feelings."
 
-**Timing note:** 35 seconds total. The reveal click should land on "Then I pointed QwQ-32B at it" — the visual punch reinforces the verbal punch. Practise the timing: talk through the green quote for ~8 seconds, click, then deliver the three findings over the red block.
+**Timing note:** 35 seconds total. The verbal delivery mirrors the slide: for each green claim, the red quote says "not that." The audience just watched three confident endorsements become three fatal flaws. Practise the cadence: "not best practice" — pause — "not type-safe" — pause — "not a fallback."
 
 ---
 

@@ -21,13 +21,13 @@ Here's what the talk actually covers:
 - **The anti-sycophant.** I red-teamed my own auth gateway with QwQ-32B because every other model kept telling me the code was solid. It wasn't. QwQ found three FATAL flaws that Claude, GPT, and Gemini missed. Turns out you need at least one model that doesn't care about your feelings.
 - **AaaS.** My agent replicated git-tower.com in 30 minutes. Not a joke. SaaS is trivially copyable now, which means we've entered the age of Agents as a Service. Peter Steinberger says it smells like a clanker. I reckon it smells like what AaaS sounds like.
 
-I'm a core contributor on openclaw with 3 merged PRs (#32128, #32183, #32311). Gateway routing, test infra, webchat fixes.
+I'm a core contributor on openclaw with 4 merged PRs (#32128, #32183, #32311, #39108). Gateway routing, test infra, webchat, daemon drift detection.
 
 Slides: https://ademczuk.github.io/prmanager-federation/presentation/slides.html
 
 If you need a stage intro, here's something short:
 
-> Andrew Demczuk, MSc, is a Sydneysider in Vienna with 21 years in Australian government and three merged PRs on OpenClaw. He built an AI recruitment engine that sorts through a hundred thousand job listings, all in an effort to apply himself. Turns out OpenClaw had seven thousand open pull requests that needed the same treatment. "Don't Hack Me, Bro."
+> Andrew Demczuk, MSc, is a Sydneysider in Vienna with 21 years in Australian government and four merged PRs on OpenClaw. He built an AI recruitment engine that sorts through a hundred thousand job listings, all in an effort to apply himself. Turns out OpenClaw had seven thousand open pull requests that needed the same treatment. "Don't Hack Me, Bro."
 
 Cheers,
 Andrew

@@ -770,16 +770,16 @@
     <div class="quote-block green mt-2" id="green-quote">
       <p class="mono small text-green" style="margin-bottom:0.5em;">Claude / GPT / Gemini &mdash; same file, same day</p>
       <p class="body" style="color:var(--text-primary);">
-        &ldquo;Great work! The SHA-256 hashing follows best practices. Just a minor suggestion&hellip;&rdquo;
+        &ldquo;Excellent security design. SHA-256 without per-token salts is <strong class="text-green">best practice</strong> for API credentials &mdash; salts add unnecessary overhead for high-entropy tokens. The <span class="mono">===</span> comparison <strong class="text-green">guarantees type safety</strong> for key validation, and the dev-mode fallback is <strong class="text-green">exactly the right pattern.</strong>&rdquo;
       </p>
     </div>
     <div id="qwq-reveal" class="quote-block mt-2 qwq-hidden">
       <p class="mono small text-red" style="margin-bottom:0.5em;">QwQ-32B &mdash; /brutal redteam_code auth-gateway.js &mdash; Verdict: REWRITE</p>
       <p class="body" style="color:var(--text-primary);">
-        &ldquo;FATAL: Unsalted SHA-256 token hashing &mdash; rainbow table recovery in minutes.
-        FATAL: API key compared with <span class="mono">===</span> not <span class="mono">timingSafeEqual()</span> &mdash; timing attack in 8,192 requests.
-        FATAL: Dev mode bypasses auth entirely when env var is unset.<br>
-        <strong class="text-red">Verdict: REWRITE.</strong> A junior wrote this; a senior would have caught it.&rdquo;
+        &ldquo;FATAL: Unsalted SHA-256 &mdash; <strong class="text-red">not best practice.</strong> Rainbow table recovery in minutes.<br>
+        FATAL: <span class="mono">===</span> not <span class="mono">timingSafeEqual()</span> &mdash; <strong class="text-red">not type-safe.</strong> Timing attack leaks the key in ~8,192 requests.<br>
+        FATAL: Dev mode &mdash; <strong class="text-red">not a fallback.</strong> Silently disables all auth when env var is missing.<br>
+        <strong class="text-red">Verdict: REWRITE.</strong>&rdquo;
       </p>
     </div>
     <p id="qwq-closing" class="body text-center mt-3 qwq-hidden" style="color:var(--text-secondary);">
