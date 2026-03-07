@@ -415,6 +415,42 @@
   }
   .strikethrough { text-decoration: line-through; opacity: 0.4; }
 
+  /* ---- QR code grid ---- */
+  .qr-grid {
+    display: flex;
+    justify-content: center;
+    gap: clamp(1.5rem, 4vw, 4rem);
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 900px;
+  }
+  .qr-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8vh;
+  }
+  .qr-label {
+    font-size: clamp(0.75rem, 1.3vw, 1.1rem);
+    font-weight: 700;
+    text-align: center;
+  }
+  .qr-sublabel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(0.55rem, 0.9vw, 0.75rem);
+    color: var(--text-muted);
+    text-align: center;
+    word-break: break-all;
+  }
+  .qr-img {
+    width: clamp(120px, 15vw, 180px);
+    height: clamp(120px, 15vw, 180px);
+    border-radius: 12px;
+    border: 2px solid rgba(255,255,255,0.1);
+    background: #fff;
+    padding: 8px;
+  }
+
   /* ---- links ---- */
   a, a:visited {
     color: var(--accent-cyan);
@@ -650,16 +686,30 @@
     </p>
   </div>
 
-  <!-- ============ SLIDE 8: END ============ -->
+  <!-- ============ SLIDE 8: QUESTIONS ============ -->
   <div class="slide" data-slide="8">
-    <h1 class="mega text-gradient text-center">Don't hack me.</h1>
-    <div class="divider mt-3"></div>
-    <div class="mt-4 text-center">
+    <span class="badge badge-cyan mb-2">Find Us</span>
+    <h1 class="big text-gradient text-center">Questions?</h1>
+    <div class="divider mt-2"></div>
+    <div class="qr-grid mt-3">
+      <div class="qr-item">
+        <div class="qr-label text-cyan">Andrew's GitHub</div>
+        <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fgithub.com%2Fademczuk" alt="QR: github.com/ademczuk">
+        <div class="qr-sublabel">github.com/ademczuk</div>
+      </div>
+      <div class="qr-item">
+        <div class="qr-label text-pink">Wil's GitHub</div>
+        <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fgithub.com%2Fsparkyrider" alt="QR: github.com/sparkyrider">
+        <div class="qr-sublabel">github.com/sparkyrider</div>
+      </div>
+      <div class="qr-item">
+        <div class="qr-label text-orange">Watch the Talk</div>
+        <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fyoutu.be%2FfIerU4m26bc" alt="QR: YouTube talk">
+        <div class="qr-sublabel">youtu.be/fIerU4m26bc</div>
+      </div>
+    </div>
+    <div class="mt-3 text-center">
       <p class="body">
-        <span class="text-muted">GitHub:</span>&nbsp;
-        <a href="https://github.com/ademczuk" class="mono">github.com/ademczuk</a>
-      </p>
-      <p class="body mt-1">
         <span class="text-muted">Slides:</span>&nbsp;
         <a href="https://ademczuk.github.io/prmanager-federation/presentation/slides.html" class="mono" style="font-size:clamp(0.7rem,1.1vw,0.9rem);">ademczuk.github.io/prmanager-federation</a>
       </p>
@@ -668,7 +718,7 @@
         <a href="https://github.com/ademczuk/prmanager-federation" class="mono" style="font-size:clamp(0.7rem,1.1vw,0.9rem);">github.com/ademczuk/prmanager-federation</a>
       </p>
     </div>
-    <p class="small text-dim text-center mt-4">Andrew Demczuk, MSc &nbsp;&bull;&nbsp; Vienna AI Engineering &nbsp;&bull;&nbsp; 2026</p>
+    <p class="small text-dim text-center mt-2">Andrew Demczuk, MSc &amp; Wil &nbsp;&bull;&nbsp; Vienna AI Engineering &nbsp;&bull;&nbsp; 2026</p>
   </div>
 
   <!-- ============ SLIDE 9: DASHBOARD OVERVIEW ============ -->
