@@ -415,46 +415,40 @@
   }
   .strikethrough { text-decoration: line-through; opacity: 0.4; }
 
-  /* ---- QR code bottom-corner stacks ---- */
+  /* ---- QR code 4-corner overlay ---- */
   .qr-corners {
     position: absolute;
-    bottom: 5px;
-    left: 5px;
-    right: 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
+    inset: 0;
     pointer-events: none;
-    z-index: 25;
-  }
-  .qr-stack {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    pointer-events: auto;
+    z-index: 150;
   }
   .qr-item {
+    position: absolute;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 2px;
+    pointer-events: auto;
   }
+  .qr-item:nth-child(1) { top: 5px; left: 5px; }
+  .qr-item:nth-child(2) { top: 5px; right: 5px; }
+  .qr-item:nth-child(3) { bottom: 5px; left: 5px; }
+  .qr-item:nth-child(4) { bottom: 5px; right: 5px; }
   .qr-label {
-    font-size: clamp(0.55rem, 0.9vw, 0.75rem);
+    font-size: clamp(0.6rem, 1vw, 0.85rem);
     font-weight: 700;
     text-align: center;
   }
   .qr-sublabel {
     font-family: 'JetBrains Mono', monospace;
-    font-size: clamp(0.45rem, 0.65vw, 0.6rem);
+    font-size: clamp(0.5rem, 0.7vw, 0.65rem);
     color: var(--text-muted);
     text-align: center;
     word-break: break-all;
   }
   .qr-img {
-    width: clamp(110px, 12vw, 150px);
-    height: clamp(110px, 12vw, 150px);
+    width: clamp(180px, 16vw, 240px);
+    height: clamp(180px, 16vw, 240px);
     border-radius: 8px;
     border: 2px solid rgba(255,255,255,0.1);
     background: #fff;
@@ -703,29 +697,25 @@
     <div class="divider mt-2"></div>
     <p class="small text-dim text-center mt-2">Andrew Demczuk, MSc &amp; Wil &nbsp;&bull;&nbsp; Vienna AI Engineering &nbsp;&bull;&nbsp; 2026</p>
     <div class="qr-corners">
-      <div class="qr-stack">
-        <div class="qr-item">
-          <div class="qr-label text-cyan">Andrew's GitHub</div>
-          <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fgithub.com%2Fademczuk" alt="QR: github.com/ademczuk">
-          <div class="qr-sublabel">github.com/ademczuk</div>
-        </div>
-        <div class="qr-item">
-          <div class="qr-label text-orange">Gource Animation</div>
-          <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fyoutu.be%2FfIerU4m26bc" alt="QR: YouTube Gource animation">
-          <div class="qr-sublabel">youtu.be/fIerU4m26bc</div>
-        </div>
+      <div class="qr-item">
+        <div class="qr-label text-cyan">Andrew's GitHub</div>
+        <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=400x400&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fgithub.com%2Fademczuk" alt="QR: github.com/ademczuk">
+        <div class="qr-sublabel">github.com/ademczuk</div>
       </div>
-      <div class="qr-stack">
-        <div class="qr-item">
-          <div class="qr-label text-pink">Wil's GitHub</div>
-          <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fgithub.com%2Fsparkyrider" alt="QR: github.com/sparkyrider">
-          <div class="qr-sublabel">github.com/sparkyrider</div>
-        </div>
-        <div class="qr-item">
-          <div class="qr-label text-green">This Presentation</div>
-          <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fademczuk.github.io%2Fprmanager-federation%2Fpresentation%2Fslides.html" alt="QR: This presentation">
-          <div class="qr-sublabel">ademczuk.github.io/.../slides.html</div>
-        </div>
+      <div class="qr-item">
+        <div class="qr-label text-pink">Wil's GitHub</div>
+        <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=400x400&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fgithub.com%2Fsparkyrider" alt="QR: github.com/sparkyrider">
+        <div class="qr-sublabel">github.com/sparkyrider</div>
+      </div>
+      <div class="qr-item">
+        <div class="qr-label text-orange">Gource Animation</div>
+        <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=400x400&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fyoutu.be%2FfIerU4m26bc" alt="QR: YouTube Gource animation">
+        <div class="qr-sublabel">youtu.be/fIerU4m26bc</div>
+      </div>
+      <div class="qr-item">
+        <div class="qr-label text-green">This Presentation</div>
+        <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=400x400&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fademczuk.github.io%2Fprmanager-federation%2Fpresentation%2Fslides.html" alt="QR: This presentation">
+        <div class="qr-sublabel">ademczuk.github.io/.../slides.html</div>
       </div>
     </div>
   </div>
