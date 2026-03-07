@@ -415,14 +415,18 @@
   }
   .strikethrough { text-decoration: line-through; opacity: 0.4; }
 
-  /* ---- QR code grid ---- */
-  .qr-grid {
+  /* ---- QR code layout ---- */
+  .qr-row-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    padding: 0 clamp(2rem, 6vw, 8rem);
+  }
+  .qr-row-bottom {
     display: flex;
     justify-content: center;
-    gap: clamp(1.5rem, 4vw, 4rem);
-    flex-wrap: wrap;
     width: 100%;
-    max-width: 900px;
   }
   .qr-item {
     display: flex;
@@ -691,7 +695,7 @@
     <span class="badge badge-cyan mb-2">Find Us</span>
     <h1 class="big text-gradient text-center">Questions?</h1>
     <div class="divider mt-2"></div>
-    <div class="qr-grid mt-3">
+    <div class="qr-row-top mt-3">
       <div class="qr-item">
         <div class="qr-label text-cyan">Andrew's GitHub</div>
         <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fgithub.com%2Fademczuk" alt="QR: github.com/ademczuk">
@@ -702,9 +706,11 @@
         <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fgithub.com%2Fsparkyrider" alt="QR: github.com/sparkyrider">
         <div class="qr-sublabel">github.com/sparkyrider</div>
       </div>
+    </div>
+    <div class="qr-row-bottom mt-2">
       <div class="qr-item">
-        <div class="qr-label text-orange">Watch the Talk</div>
-        <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fyoutu.be%2FfIerU4m26bc" alt="QR: YouTube talk">
+        <div class="qr-label text-orange">Gource (Background) Animation</div>
+        <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=0a0e1a&bgcolor=f1f5f9&data=https%3A%2F%2Fyoutu.be%2FfIerU4m26bc" alt="QR: YouTube Gource animation">
         <div class="qr-sublabel">youtu.be/fIerU4m26bc</div>
       </div>
     </div>
