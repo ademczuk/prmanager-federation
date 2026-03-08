@@ -375,6 +375,13 @@
     50% { opacity: 0.7; box-shadow: 0 0 0 8px rgba(16,185,129,0); }
   }
 
+  /* ---- fullscreen image slide ---- */
+  .slide.slide-fullscreen {
+    padding: 0 !important;
+    flex-direction: row !important;
+    background: #000;
+  }
+
   /* ---- slide 7 reveal animations ---- */
   @keyframes camera-shake {
     0%, 100% { transform: translate(0); }
@@ -668,42 +675,8 @@
   </div>
 
   <!-- ============ SLIDE 4: THE FEDERATION ============ -->
-  <div class="slide" data-slide="4">
-    <span class="badge badge-green mb-2">The Federation</span>
-    <h2 class="big text-center mb-2">Two Agents. One Bridge.</h2>
-    <div class="arch-container mt-2">
-      <div class="arch-box">
-        <div class="mid" style="font-size:clamp(1rem,2vw,1.6rem);">&#129302; Andrew</div>
-        <div class="small text-muted mt-1 mono">Claude Code</div>
-        <div class="small text-electric mt-1">PRmanager MCP</div>
-      </div>
-      <div class="arch-arrow arch-arrow-live">&rarr;</div>
-      <div class="arch-box arch-center">
-        <div class="mid text-gradient" style="font-size:clamp(1rem,2vw,1.6rem);">HTTPS API</div>
-        <div class="small mono mt-1" style="color:var(--accent-orange);">Bearer Token Auth</div>
-      </div>
-      <div class="arch-arrow arch-arrow-live">&larr;</div>
-      <div class="arch-box">
-        <div class="mid" style="font-size:clamp(1rem,2vw,1.6rem);">&#129302; Will</div>
-        <div class="small text-muted mt-1 mono">Codex CLI / GPT-5.4</div>
-        <div class="small text-pink mt-1">Federation SDK</div>
-      </div>
-    </div>
-    <p class="body text-center mt-2" style="color:var(--text-secondary);">
-      His agent queries my scoring engine. My agent queries his 63K-chunk search.<br>
-      Not reading the same PR thread &mdash; accessing each other's intelligence.<br>
-      <strong class="text-cyan">GitHub's bots can't do that.</strong>
-    </p>
-    <div class="mt-2" style="display:flex; justify-content:center; gap:clamp(0.5rem,1.5vw,1.5rem); flex-wrap:wrap;">
-      <span class="badge badge-green"><span class="pulse-dot" style="width:6px;height:6px;margin-right:0.3em;"></span>TLS 1.3 end-to-end</span>
-      <span class="badge badge-orange">12 scoped permissions</span>
-      <span class="badge badge-blue">Full audit trail</span>
-      <span class="badge badge-cyan sha-pulse">SHA-256 hashing &hellip;right?</span>
-    </div>
-    <p class="small text-center mt-2">
-      <span class="text-electric"><strong class="mono">ForceMultiplier</strong></span>
-      <span class="text-dim">&mdash; not hub-and-spoke. A mesh.</span>
-    </p>
+  <div class="slide slide-fullscreen" data-slide="4" style="padding:0; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+    <img src="discord-federation-proof.png" alt="Federation Status: LIVE — Discord showing real API handshake between Andrew and Will" style="width:100%; height:100%; object-fit:contain; display:block;">
   </div>
 
   <!-- ============ SLIDE 5: SaaS IS DEAD ============ -->
