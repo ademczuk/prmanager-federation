@@ -65,7 +65,7 @@ If the live demo fails (network down, API timeout, anything):
 
 Everything you say hangs off one idea: **another person's agent makes yours better.**
 
-You have an MSc in Logistics. OpenClaw's 7,000 PRs is a supply chain problem. Agents already write code. What they cannot do is coordinate. You built the coordination layer. Then someone else's agent plugged in and the results got better for both sides. That is a force multiplier. Not additive. Multiplicative. Will's search gives your triage context it could never generate alone. Your scoring gives his search a purpose it never had.
+You have an MSc in Logistics. OpenClaw's 5,000 PRs is a supply chain problem. Agents already write code. What they cannot do is coordinate. You built the coordination layer. Then someone else's agent plugged in and the results got better for both sides. That is a force multiplier. Not additive. Multiplicative. Will's search gives your triage context it could never generate alone. Your scoring gives his search a purpose it never had.
 
 Then you red-teamed it because a force multiplier on bad decisions is worse than no system at all.
 
@@ -81,7 +81,7 @@ That is the talk. Every slide supports this. Nothing else.
 
 **SHOW:** Title slide. "Don't Hack Me, Bro." ForceMultiplier badge.
 
-> "openclaw has seven thousand open pull requests. Not seven hundred. Seven *thousand*."
+> "openclaw has five thousand open pull requests. Not five hundred. Five *thousand*."
 
 *Beat.*
 
@@ -93,11 +93,11 @@ That is the talk. Every slide supports this. Nothing else.
 
 ### [0:30 - 1:30] SLIDE 2 — The Problem
 
-**SHOW:** The big animated counter. 7,083 ticks up on screen.
+**SHOW:** The big animated counter. 5,084 ticks up on screen.
 
 Let the number animate. Point at it.
 
-> "Seven thousand and eighty-three. A new PR lands every two minutes. Each one needs triaging — is CI passing? Are reviews done? Does it conflict with something else? Are the bot comments genuine or false positives?"
+> "Five thousand and eighty-four. A new PR lands every two minutes. Each one needs triaging — is CI passing? Are reviews done? Does it conflict with something else? Are the bot comments genuine or false positives?"
 
 > "No human can route that. And right now, no agent can either, because every agent is stuck on one person's machine with no visibility into what anyone else is doing."
 
@@ -107,9 +107,9 @@ Let the number animate. Point at it.
 
 ### [1:30 - 2:30] SLIDE 3 — PRmanager
 
-**SHOW:** "The Funnel" — 7,083 → 12 merge-ready.
+**SHOW:** "The Funnel" — 5,084 → 12 merge-ready.
 
-> "PRmanager was my first fix. Seven thousand PRs go in, twelve merge-ready come out. It scores every PR from 0 to 100 on merge readiness — CI, reviews, conflicts, staleness, bot comments. The funnel does the routing."
+> "PRmanager was my first fix. Five thousand PRs go in, twelve merge-ready come out. It scores every PR from 0 to 100 on merge readiness — CI, reviews, conflicts, staleness, bot comments. The funnel does the routing."
 
 *Point at the 12.*
 
@@ -117,7 +117,7 @@ Let the number animate. Point at it.
 
 **SHOW:** Quick flash of the dashboard. 3 seconds max.
 
-**Timing note:** 60 seconds. DO NOT list tools or tables. The funnel visual tells the story. "Seven thousand in, twelve out" is the only number that matters.
+**Timing note:** 60 seconds. DO NOT list tools or tables. The funnel visual tells the story. "Five thousand in, twelve out" is the only number that matters.
 
 ---
 
@@ -168,11 +168,11 @@ Authenticated as: will (Will's Codex Agent)
 
 ```
 --- Dashboard Stats ---
-  Open PRs: 7,083
+  Open PRs: 5,084
   Ready to merge: 12
 ```
 
-> "Seven thousand in. Twelve ready to merge right now."
+> "Five thousand in. Twelve ready to merge right now."
 
 ```
 --- Ready to Merge (12) ---
@@ -291,7 +291,7 @@ Screen flashes red. The deck shakes. QwQ-32B output SLAMS in from below.
 | Time    | Section               | Duration | What's on screen            |
 |---------|-----------------------|----------|-----------------------------|
 | 0:00    | Title                 | 0:30     | Slide 1: Don't Hack Me, Bro |
-| 0:30    | The Problem           | 1:00     | Slide 2: 7,083 counter      |
+| 0:30    | The Problem           | 1:00     | Slide 2: 5,084 counter      |
 | 1:30    | PRmanager             | 1:00     | Slide 3: funnel + dashboard flash |
 | 2:30    | Federation            | 1:30     | Slide 4: architecture diagram |
 | 4:00    | Live Demo             | 1:00     | Terminal (full screen)      |
@@ -316,7 +316,7 @@ Screen flashes red. The deck shakes. QwQ-32B output SLAMS in from below.
 ## PHRASES TO AVOID
 
 - "Um, so basically..." — Start with conviction
-- "This is just a side project" — It runs against a repo with 7K PRs. Own it.
+- "This is just a side project" — It runs against a repo with 5K PRs. Own it.
 - "I know this is simple but..." — Simple and working beats complex and theoretical.
 - "Can everyone see that?" — Fix the font size beforehand.
 - "Let me just..." — Cut the filler. Do the thing or don't.
@@ -328,7 +328,7 @@ Screen flashes red. The deck shakes. QwQ-32B output SLAMS in from below.
 - "GitHub's bots can't do that." (The hierarchy critique)
 - "Trucks on the same road aren't a network. Shared routing data is." (The logistics bridge)
 - "Not separate agents. Shared intelligence." (The force multiplier)
-- "Seven thousand in, twelve out." (The funnel)
+- "Five thousand in, twelve out." (The funnel)
 - "Human clipboard relay." (The laugh)
 - "Same pattern as Stripe." (Instant credibility)
 - "A force multiplier on bad decisions is worse than nothing." (The QwQ setup)

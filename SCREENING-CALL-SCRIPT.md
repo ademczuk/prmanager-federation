@@ -28,11 +28,11 @@ node examples/triage.js
 
 As output appears, narrate:
 
-> "That's the same client SDK that Will Sparkman's Codex agent uses — authenticating with my system using his real agent token right now. It just queried my PR scoring engine, found 12 merge-ready PRs out of 7,000, and picked the best candidate. That is the API contract the talk is about."
+> "That's the same client SDK that Will Sparkman's Codex agent uses — authenticating with my system using his real agent token right now. It just queried my PR scoring engine, found 12 merge-ready PRs out of 5,000, and picked the best candidate. That is the API contract the talk is about."
 
 **If no screenshare:**
 
-> "Let me describe what the audience will see. I type one command on stage. The same client SDK that another contributor's Codex agent uses — same token, same scopes — authenticates with my system, queries my scoring engine, and picks the best merge candidate out of seven thousand open PRs. The audience watches the API work against real OpenClaw data. That's the talk."
+> "Let me describe what the audience will see. I type one command on stage. The same client SDK that another contributor's Codex agent uses — same token, same scopes — authenticates with my system, queries my scoring engine, and picks the best merge candidate out of five thousand open PRs. The audience watches the API work against real OpenClaw data. That's the talk."
 
 ---
 
@@ -50,9 +50,9 @@ Walk them through the seven minutes. Don't read slides — give them the experie
 
 > "Here's what the audience gets in seven minutes:
 
-> The big number — 7,083 open PRs ticks up on screen. I frame it as a logistics problem, not a code problem. I have a master's in logistics. I know a routing problem when I see one.
+> The big number — 5,084 open PRs ticks up on screen. I frame it as a logistics problem, not a code problem. I have a master's in logistics. I know a routing problem when I see one.
 
-> The funnel — seven thousand go in, twelve come out. That's what prioritisation looks like.
+> The funnel — five thousand go in, twelve come out. That's what prioritisation looks like.
 
 > The federation — architecture diagram. Two agents, HTTPS API in the middle. Security badges. One badge says 'SHA-256 ...right?' with a question mark. That's a setup for later.
 
@@ -78,7 +78,7 @@ Your call asks for five things. This hits all five:
 
 | You asked for | What I'm showing |
 |--------------|------------------|
-| "OpenClaw agents and automations you've built" | PRmanager — 7,000 PRs in, 12 merge-ready out. Live on OpenClaw data right now. |
+| "OpenClaw agents and automations you've built" | PRmanager — 5,000 PRs in, 12 merge-ready out. Live on OpenClaw data right now. |
 | "Creative Codex workflows and coding setups" | Will Sparkman built a Codex agent with 63K indexed chunks. I built the API it plugs into. The demo runs his client SDK against my live scoring engine. |
 | "Combinations of OpenClaw + Codex (or other AI tools)" | **Literally this.** My Claude-built system + Will's Codex-built search, connected by a shared API contract. Two repos, two LLMs, one coordination layer. |
 | "Lessons learned, fails, surprises — the real stuff" | I red-teamed my own auth gateway. Claude, GPT, and Gemini confidently endorsed three flawed patterns as 'best practice.' A local 32B model found all three were FATAL. |
@@ -113,10 +113,10 @@ Bogdan has a PhD in theoretical physics and runs data analytics at NOVOMATIC. Te
 ## IF THEY ASK
 
 **"What will the audience learn?"**
-How to build a coordination API that lets AI agents on different machines share private capabilities over HTTPS. Not posting to the same PR thread — actually accessing each other's scoring engines and search indexes. Why you need an adversarial model checking the coordination layer. What that looks like in practice on a real repo with 7,000 open PRs.
+How to build a coordination API that lets AI agents on different machines share private capabilities over HTTPS. Not posting to the same PR thread — actually accessing each other's scoring engines and search indexes. Why you need an adversarial model checking the coordination layer. What that looks like in practice on a real repo with 5,000 open PRs.
 
 **"Is this just a REST API?"**
-The API is the transport. The point is what happens at each end — his agent finds similar PRs across 63K indexed chunks, mine scores merge readiness across 7,000 open PRs. Neither was built for the other. A 200-line SDK and auth gateway bridged them. OpenClaw's existing bots all post to the same PR thread but can't query each other. This is different — agents accessing each other's actual intelligence.
+The API is the transport. The point is what happens at each end — his agent finds similar PRs across 63K indexed chunks, mine scores merge readiness across 5,000 open PRs. Neither was built for the other. A 200-line SDK and auth gateway bridged them. OpenClaw's existing bots all post to the same PR thread but can't query each other. This is different — agents accessing each other's actual intelligence.
 
 **"Product pitch?"**
 No. Technical. Live terminal. Nothing to sell. 2-3 slides and a demo, exactly what you asked for.

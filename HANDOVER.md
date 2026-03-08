@@ -23,7 +23,7 @@ Auth:     Authorization: Bearer <raw-token>
 |------|--------|
 | `GET /v1/health` (no auth) | `{"status":"ok","agent":"prmanager","version":"1.0"}` |
 | `GET /api/agent/me` (Will's token) | Returns agent_id, 12 scopes, display_name |
-| `GET /api/prs?limit=2` | Returns PR data (7,083 open PRs available) |
+| `GET /api/prs?limit=2` | Returns PR data (5,084 open PRs available) |
 | `GET /api/stats` | Returns dashboard statistics |
 | `GET /api/low-hanging-fruit` | Returns scored PRs (fruit_score 85-89) |
 | `POST /api/pick/:id` (Will's token) | 200 OK (prs:write scope works) |

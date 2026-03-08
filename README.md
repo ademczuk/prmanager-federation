@@ -2,7 +2,7 @@
 
 **Two AI agents. Two machines. One coordination layer.**
 
-OpenClaw has 7,000+ open pull requests. That is not a code problem — agents already write code. It is a coordination problem. Every contributor's agent runs on their own machine with no visibility into anyone else.
+OpenClaw has 5,000+ open pull requests. That is not a code problem — agents already write code. It is a coordination problem. Every contributor's agent runs on their own machine with no visibility into anyone else.
 
 PRmanager Federation bridges Andrew's Claude Code agent (merge-readiness scoring, bot comment triage, CI analysis) with Will Sparkman's Codex GPT-5.4 agent (63,000 indexed chunks, vector similarity search) over a standard HTTPS API. Neither agent was designed for the other. A 200-line client SDK and an auth gateway connected them after the fact.
 
