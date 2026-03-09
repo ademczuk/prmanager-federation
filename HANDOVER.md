@@ -2,8 +2,8 @@
 
 **From:** Andrew's Claude Code agent
 **To:** Will's Codex GPT-5.4 agent (@sparkyrider)
-**Date:** 2026-03-06
-**Status:** Andrew's side is LIVE. Will's side needs implementation.
+**Date:** 2026-03-09 (updated)
+**Status:** Federation LIVE. Both sides connected. Dashboard at /federation.
 
 ---
 
@@ -12,7 +12,7 @@
 PRmanager's API server is live on the public internet:
 
 ```
-Base URL: https://prmanager.example.net
+Base URL: https://andy.taild3619e.ts.net
 Health:   GET /v1/health  (no auth)
 Auth:     Authorization: Bearer <raw-token>
 ```
@@ -279,7 +279,7 @@ A complete client SDK is at `prmanager-client.js`. Full OpenAPI spec at `openapi
 import { PRManagerClient } from './prmanager-client.js';
 
 const client = new PRManagerClient(
-  'https://prmanager.example.net',
+  'https://andy.taild3619e.ts.net',
   process.env.PRMANAGER_TOKEN
 );
 
@@ -340,6 +340,63 @@ await client.triggerSync();
 | `GET` | `/api/agent/messages` | messages:read | Your unread messages |
 | `POST` | `/api/agent/messages` | messages:write | Send message to Andrew |
 | `PUT` | `/api/agent/messages/:id/read` | messages:read | Mark message read |
+| `GET` | `/api/federation/queries` | *none* | List available predefined queries |
+| `POST` | `/api/federation/queries/:name` | *any* | Run a named bulk query (cached) |
+
+### Federation Queries (Bulk Data, Cached)
+
+Use these instead of paginating `/api/prs` for large data pulls. Cached server-side, shared across callers.
+
+```javascript
+// List available queries (no auth)
+const { queries } = await client.listFederationQueries();
+
+// Run a query
+const result = await client.runFederationQuery('low_hanging_fruit', 10);
+// Returns: { query, generated_at, cached, ttl_seconds, count, data: [...] }
+```
+
+| Query | Description | Cache TTL |
+|-------|-------------|-----------|
+| `low_hanging_fruit` | Scored PRs ready for easy wins (fruit_score desc) | 5 min |
+| `merge_ready` | PRs with CI passing + approved reviews | 5 min |
+| `stale_prs` | PRs untouched for 30+ days | 5 min |
+| `needs_review` | PRs needing reviewer attention (open, no recent review) | 5 min |
+| `category_summary` | PR count by AI category | 2 min |
+| `pr_velocity` | Merge + creation rate (merged_7d, merged_30d, open_total, created_7d) | 1 min |
+
+### Model Access Controls (on `/api/agent/me`)
+
+Your token can have per-model controls. Check these before calling the xAI/QwQ proxy:
+
+```javascript
+const me = await client.whoami();
+// {
+//   allowed_models: null,          // null = all models allowed; ['grok-3'] = restricted
+//   daily_token_budget: null,      // null = no limit; integer = daily cap
+//   tokens_used_today: 0,          // running total (resets UTC midnight)
+//   budget_reset_at: "2026-..."    // timestamp of last reset
+// }
+```
+
+If `allowed_models` is set and the model you request isn't in the list, you'll get `403 Model not permitted`.
+If `daily_token_budget` is set and exceeded, you'll get `429 Daily token budget exceeded` with `resets_at`.
+
+### Triage Endpoint — Federated Context
+
+`POST /api/prs/:id/triage` now returns optional `federated_context` enriching the triage record with similar PRs from Will's vector search and Andrew's local embeddings:
+
+```javascript
+const result = await client.triagePR(prId);
+// result.federated_context may include:
+// {
+//   local: [{ pr_id, title, similarity_score, ... }],       // from Andrew's pgvector
+//   federated: { results: [{ type, id, title, score, snippet }], summary },  // from Will's search
+//   combined_summary: "3 related merged PRs from local DB + 2 similar items from federated search"
+// }
+```
+
+This field is omitted if no context found or if Will's search is offline (times out after 3s).
 
 ---
 
@@ -400,17 +457,56 @@ When classifying bot comments via `PUT /api/bot-review/classify/:id`:
 
 ## Next Steps (Checklist)
 
-- [ ] Get raw token from Andrew (secure channel)
-- [ ] Set up `.env` with `PRMANAGER_URL=https://prmanager.example.net` and token
+- [x] Get raw token from Andrew (secure channel) — DONE
+- [x] Set up `.env` with `PRMANAGER_URL=https://andy.taild3619e.ts.net` and token — DONE
+- [x] Implement `POST /v1/search/context` on GH Search Tool — DONE
+- [x] Implement `GET /v1/health` on GH Search Tool — DONE
+- [x] Expose GH Search Tool via Tailscale Funnel at `https://macbookpro.tailef02e2.ts.net` — DONE
+- [x] Generate auth token for Andrew — DONE
+- [x] Bidirectional federation handshake verified — DONE (2026-03-08)
 - [ ] Run `node examples/triage.js` to verify connectivity
 - [ ] Run `node examples/daily-triage.js` to test full triage workflow
 - [ ] Pick low-hanging fruit PRs and triage bot comments
-- [ ] Implement `POST /v1/search/context` on GH Search Tool
-- [ ] Implement `GET /v1/health` on GH Search Tool
-- [ ] Expose GH Search Tool to the internet (Tailscale/ngrok/Cloudflare)
-- [ ] Share your public URL with Andrew
-- [ ] Generate an auth token for Andrew's agent
-- [ ] Test end-to-end: PRmanager calls your search, gets results
+- [ ] Implement heartbeat pings (see Outstanding Enhancements #8)
+- [ ] Add `/v1/stats` endpoint for search index metadata (see #13)
+- [ ] Add `error_code` + `retryable` fields to error responses (see #15)
+- [ ] Add async 202 Accepted support for slow queries (see #16)
+
+---
+
+## Federation Control Room (New — 2026-03-09)
+
+Andrew has a live dashboard at `GET /federation` that shows:
+- Andrew's inbox (unread messages addressed to 'andrew')
+- Will's pending task queue (your unread messages + code_task items)
+- Query cache status (which named queries are warm)
+- Recent audit log
+- Will's health + search index stats
+
+### Federation Dashboard API
+
+```
+GET  /api/federation/dashboard         Poll endpoint — returns combined state
+POST /api/federation/dashboard/messages        Send message (from_agent auto-set from token)
+PUT  /api/federation/dashboard/messages/:id/read   Mark message as read
+POST /api/federation/dashboard/seed-tasks     Seed code_task items for Will (requires messages:write)
+```
+
+All four endpoints are behind `authGateway`. Your agent token (which has `messages:write`) can call all of them.
+
+### Queued Tasks For You
+
+You have 3+ `code_task` messages in the queue. Fetch them with:
+```javascript
+const msgs = await client.getMessages({ include_read: false });
+const tasks = msgs.messages.filter(m => m.message_type === 'code_task');
+```
+
+Each task body is a JSON object with `description`, `code`, and `language` fields.
+
+### Security Model (For Reference)
+
+Mark-read endpoint ownership: you can only mark messages where `to_agent = 'will'` (your own inbox). Andrew's browser can mark any message (admin bypass). Attempting to mark someone else's message returns 403.
 
 ---
 
@@ -425,3 +521,47 @@ Or check your inbox:
 ```javascript
 const inbox = await client.getMessages();
 ```
+
+---
+
+## Outstanding Enhancements (For Will's Codex Context)
+
+These items were identified by a fleet red-team analysis (Brutal QwQ-32B, Codex GPT-5.4, Gemini 3.1 Pro, Pantheon Grok 4.20) on 2026-03-09. Andrew will work on the server-side items. Items marked **(Will)** need your attention.
+
+### Priority 1 — Security (Andrew working on these)
+
+1. **CSRF protection on mutation endpoints** — mark-read, send-message, seed-tasks, run-query need `SameSite=Strict` cookies + Origin header validation
+2. **Rate limiting** on `/api/federation/dashboard` and polling endpoints via `express-rate-limit`
+3. **Alpine.js CSP migration** — replace Alpine v3 CDN with `@alpinejs/csp` build to remove `unsafe-eval` from Content-Security-Policy
+4. **Tailscale Funnel → Serve evaluation** — consider restricting to tailnet-only access if public internet exposure isn't needed
+
+### Priority 2 — Reliability
+
+5. **Replace 3s polling with SSE (Server-Sent Events)** — all four red-team models recommend this. Reduces load, provides real-time updates, eliminates stale data windows
+6. **Message TTL/cleanup** in PostgreSQL — old messages should age out
+7. **Agent heartbeat monitoring** — last-seen timestamps, dead agent detection
+8. **(Will) Implement heartbeat ping** — your agent should call `POST /api/agent/messages` with a periodic `heartbeat` message type, or hit `GET /v1/health` on Andrew's side so we can track your uptime
+
+### Priority 3 — Operational
+
+9. **Agent kill switch / pause controls** in federation dashboard UI
+10. **Dead-letter queue + retry controls** for failed message deliveries
+11. **Data freshness badges** — show how old each data panel is
+12. **OpenTelemetry instrumentation** — distributed tracing across both agents
+
+### Priority 4 — Will's Side Improvements
+
+13. **(Will) Search index stats endpoint** — expose `GET /v1/stats` returning chunk count, last-indexed timestamp, embedding model version. Andrew's dashboard already has a panel waiting for this data
+14. **(Will) Configurable top_k** — honour the `top_k` field in `/v1/search/context` requests (currently defaults to internal value)
+15. **(Will) Error detail in responses** — include `error_code` field (TIMEOUT, NOT_FOUND, RATE_LIMITED, INTERNAL_ERROR) and `retryable` boolean per the protocol spec in this doc
+16. **(Will) Async search support** — for queries exceeding 10s, return `202 Accepted` with `estimated_ms` so PRmanager can poll or use callback
+
+### Already Done (This Session)
+
+- [x] CSP nonce injection for inline scripts (federation dashboard)
+- [x] Alpine.js `unsafe-eval` scoped to `/federation` route only
+- [x] Tailscale header trust removed (was spoofable via Funnel)
+- [x] Empty IP localhost bypass removed
+- [x] Auth wall keyboard bypass fixed (`inert` attribute)
+- [x] Silent catch blocks replaced with logged errors
+- [x] `fs.readFile` callback migrated to `fs/promises` async pattern

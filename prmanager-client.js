@@ -307,4 +307,34 @@ export class PRManagerClient {
   async xaiModels() {
     return this._fetch('/api/xai/v1/models');
   }
+
+  // ─── Federation Queries (bulk data, cached) ────────────────
+
+  /**
+   * List available predefined federation queries.
+   * No auth required — returns query catalogue.
+   * @returns {Promise<{ queries: Array<{ name, description, ttl_seconds, default_limit, max_limit }> }>}
+   */
+  async listFederationQueries() {
+    return this._fetch('/api/federation/queries');
+  }
+
+  /**
+   * Run a named predefined federation query.
+   * Results are cached server-side (TTL varies per query).
+   *
+   * @param {string} name - Query name (see listFederationQueries() for catalogue)
+   *   - 'low_hanging_fruit'  Easy-win PRs scored 0-100, 5 min cache
+   *   - 'merge_ready'        PRs ready to merge (CI pass + approved), 5 min cache
+   *   - 'stale_prs'          PRs untouched for 30+ days, 5 min cache
+   *   - 'needs_review'       PRs needing reviewer attention, 5 min cache
+   *   - 'category_summary'   PR count by AI category, 2 min cache
+   *   - 'pr_velocity'        Merge + creation rate stats, 1 min cache
+   * @param {number} [limit] - Max results (default per query, max 100)
+   * @returns {Promise<{ query, generated_at, cached, ttl_seconds, count, data }>}
+   */
+  async runFederationQuery(name, limit) {
+    const qs = limit ? `?limit=${limit}` : '';
+    return this._fetch(`/api/federation/queries/${name}${qs}`, { method: 'POST' });
+  }
 }
