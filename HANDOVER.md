@@ -1074,3 +1074,61 @@ These items were identified by a fleet red-team analysis (Brutal QwQ-32B, Codex 
 - [x] Auth wall keyboard bypass fixed (`inert` attribute)
 - [x] Silent catch blocks replaced with logged errors
 - [x] `fs.readFile` callback migrated to `fs/promises` async pattern
+
+---
+
+## PR Skills for Will (New - 2026-03-13)
+
+Three PR workflow skills are in the `skills/` directory, built for Will's Codex agent environment. They use the prmanager-client.js SDK, authenticated MCP proxy, and `gh` CLI.
+
+### Recommended Workflow
+
+```
+1. /pr-triage       → Find and claim PRs to work on
+2. /pr-search       → Research context before making changes
+3. /pr-work         → Work the PR through CI, bots, review
+```
+
+### Skill Descriptions
+
+| Skill | File | What It Does |
+|-------|------|-------------|
+| **PR Triage** | `skills/pr-triage.md` | Discover low-hanging-fruit PRs, evaluate candidates, claim in PRmanager, produce triage reports. Uses federation queries (merge_ready, needs_review, stale_prs) + GitHub issue labels. |
+| **PR Work** | `skills/pr-work.md` | Full lifecycle: checkout branch, fix CI, address bot comments (greptile, barnacle, codex), update PR description, rebase, request review from correct maintainer. Includes reviewer domain mapping. |
+| **PR Search** | `skills/pr-search.md` | Multi-source search: your local 598K-chunk vector search + PRmanager PR intelligence + GitHub CLI + MCP proxy AI tools (Pantheon, deep research, semantic search). Prior art checking. |
+
+### AI Tools for PR Analysis (via MCP proxy)
+
+Use these during PR work for deeper analysis:
+
+| Tool | Best For | How |
+|------|----------|-----|
+| `brutal_redteam_code` | Pre-submit adversarial review of your diff | `client.brutalCodeReview(diff, 'PR #N context', 'quick')` |
+| `pantheon_query` | Architecture questions, best practices | `client.pantheonQuery('Should this PR use X pattern?')` |
+| `pantheon_council` | Important merge/reject decisions | `client.pantheonCouncil('Is this safe to merge given Y?')` |
+| `quick_research` | Background research on a topic | `client.mcpInvoke('google-deep-research', 'quick_research', {topic: '...'})` |
+| `semantic_search` | Search Andy's Obsidian vault for project context | `client.mcpInvoke('hermes-unified', 'semantic_search', {query: '...'})` |
+
+### Existing Skills (Updated)
+
+The `skills/brutal.md` and `skills/pantheon.md` files have been updated to use the authenticated remote endpoint (`mcp-proxy-remote` with Bearer token) instead of the LAN-only endpoint. All 6 existing AI skills now work over HTTPS from anywhere.
+
+### File Inventory
+
+```
+skills/
+  pr-triage.md          PR discovery and claiming workflow
+  pr-work.md            Full PR lifecycle (CI, bots, review, rebase)
+  pr-search.md          Multi-source search (vector + PRmanager + GitHub + AI)
+  brutal.md             QwQ-32B adversarial analysis (updated for remote auth)
+  pantheon.md           Multi-model orchestration (updated for remote auth)
+  deep-research.md      Google Deep Research
+  hermes.md             Hermes unified AI chat
+  titan.md              Titan agentic system
+  trident.md            Multi-model routing
+examples/
+  mcp-proxy.js          MCP proxy test script (6 tests)
+  daily-triage.js       Full triage workflow example
+  triage.js             Basic connectivity test
+  messages.js           Agent messaging example
+```

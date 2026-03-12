@@ -2,18 +2,23 @@ Pantheon multi-model orchestration on Andy's main workstation. Tier-based query 
 
 The user wants: $ARGUMENTS
 
+All calls use the **authenticated remote endpoint** (works over Tailscale Funnel).
+Requires `PRMANAGER_URL` and `PRMANAGER_TOKEN` env vars (from `.env`).
+
 ## Available Tools
 
 ### 1. Query (auto-routes by complexity)
 ```bash
-curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
+curl -s -X POST "$PRMANAGER_URL/api/federation/mcp-proxy-remote" \
+  -H "Authorization: Bearer $PRMANAGER_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{"server":"pantheon","tool":"pantheon_query","args":{"query":"YOUR QUESTION","mode":"sync"}}'
 ```
 
 For complex queries that may timeout, use async mode:
 ```bash
-curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
+curl -s -X POST "$PRMANAGER_URL/api/federation/mcp-proxy-remote" \
+  -H "Authorization: Bearer $PRMANAGER_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{"server":"pantheon","tool":"pantheon_query","args":{"query":"COMPLEX QUESTION","mode":"async"}}'
 ```
@@ -21,7 +26,8 @@ curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
 ### 2. Council (multi-model deliberation with peer review)
 For important decisions requiring consensus:
 ```bash
-curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
+curl -s -X POST "$PRMANAGER_URL/api/federation/mcp-proxy-remote" \
+  -H "Authorization: Bearer $PRMANAGER_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{"server":"pantheon","tool":"pantheon_council","args":{"query":"IMPORTANT QUESTION","mode":"async"}}'
 ```
@@ -29,7 +35,8 @@ curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
 ### 3. Route (analyze without executing)
 See which tier and model would handle a query:
 ```bash
-curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
+curl -s -X POST "$PRMANAGER_URL/api/federation/mcp-proxy-remote" \
+  -H "Authorization: Bearer $PRMANAGER_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{"server":"pantheon","tool":"pantheon_route","args":{"query":"TASK DESCRIPTION"}}'
 ```
@@ -38,26 +45,30 @@ curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
 Store and search knowledge:
 ```bash
 # Store
-curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
+curl -s -X POST "$PRMANAGER_URL/api/federation/mcp-proxy-remote" \
+  -H "Authorization: Bearer $PRMANAGER_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{"server":"pantheon","tool":"pantheon_memory_store","args":{"content":"FACT TO REMEMBER","category":"fact"}}'
 
 # Search
-curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
+curl -s -X POST "$PRMANAGER_URL/api/federation/mcp-proxy-remote" \
+  -H "Authorization: Bearer $PRMANAGER_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{"server":"pantheon","tool":"pantheon_memory_search","args":{"query":"SEARCH TERM"}}'
 ```
 
 ### 5. Budget Check
 ```bash
-curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
+curl -s -X POST "$PRMANAGER_URL/api/federation/mcp-proxy-remote" \
+  -H "Authorization: Bearer $PRMANAGER_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{"server":"pantheon","tool":"pantheon_budget","args":{}}'
 ```
 
 ### 6. Async Job Status
 ```bash
-curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
+curl -s -X POST "$PRMANAGER_URL/api/federation/mcp-proxy-remote" \
+  -H "Authorization: Bearer $PRMANAGER_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{"server":"pantheon","tool":"pantheon_job_status","args":{"jobId":"JOB_ID"}}'
 ```

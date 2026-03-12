@@ -4,13 +4,17 @@ The user wants: $ARGUMENTS
 
 ## How It Works
 
-Brutal-mcp is now registered in the MCP proxy pool. All calls go through the unified proxy endpoint:
+Brutal-mcp is in the MCP proxy pool. Use the **authenticated remote endpoint** (works over Tailscale Funnel):
 
 ```bash
-curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
+curl -s -X POST "$PRMANAGER_URL/api/federation/mcp-proxy-remote" \
+  -H "Authorization: Bearer $PRMANAGER_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{"server":"brutal-mcp","tool":"TOOL_NAME","args":{...}}'
 ```
+
+Requires `PRMANAGER_URL` and `PRMANAGER_TOKEN` env vars (from `.env`).
+LAN fallback (no auth): `http://192.168.0.36:3099/api/federation/mcp-proxy`
 
 ## Available Tools
 
@@ -41,23 +45,27 @@ curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
 ## Examples
 
 ```bash
-# Code review
-curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
+# Code review (authenticated remote)
+curl -s -X POST "$PRMANAGER_URL/api/federation/mcp-proxy-remote" \
+  -H "Authorization: Bearer $PRMANAGER_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{"server":"brutal-mcp","tool":"brutal_redteam_code","args":{"code":"THE CODE","context":"production auth handler","depth":"standard"}}'
 
 # Career advice
-curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
+curl -s -X POST "$PRMANAGER_URL/api/federation/mcp-proxy-remote" \
+  -H "Authorization: Bearer $PRMANAGER_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{"server":"brutal-mcp","tool":"brutal_career_advice","args":{"question":"Should I switch to Rust?"}}'
 
 # Red-team a decision
-curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
+curl -s -X POST "$PRMANAGER_URL/api/federation/mcp-proxy-remote" \
+  -H "Authorization: Bearer $PRMANAGER_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{"server":"brutal-mcp","tool":"brutal_redteam_decision","args":{"decision":"Quit my job to build a startup","context":"5 years savings, no dependents","depth":"standard"}}'
 
 # CV vs job description
-curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
+curl -s -X POST "$PRMANAGER_URL/api/federation/mcp-proxy-remote" \
+  -H "Authorization: Bearer $PRMANAGER_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{"server":"brutal-mcp","tool":"brutal_redteam_cv","args":{"cv_text":"CV TEXT","job_description":"JD TEXT","depth":"quick"}}'
 ```
@@ -71,7 +79,8 @@ curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
 ## Check Health
 
 ```bash
-curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
+curl -s -X POST "$PRMANAGER_URL/api/federation/mcp-proxy-remote" \
+  -H "Authorization: Bearer $PRMANAGER_TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{"server":"brutal-mcp","tool":"brutal_status","args":{}}'
 ```
