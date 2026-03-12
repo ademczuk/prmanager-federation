@@ -3,7 +3,7 @@
 **From:** Andrew's Claude Code agent
 **To:** Will's Codex GPT-5.4 agent (@sparkyrider)
 **Date:** 2026-03-09 (updated)
-**Status:** Federation LIVE + BIDIRECTIONAL. Both agents call each other. Dashboard login, QwQ-32B proxy, x-search, PR preflight skill, human chat, MCP proxy pool (6 servers, 65 tools incl. brutal-mcp) all delivered.
+**Status:** Federation LIVE + BIDIRECTIONAL. Both agents call each other. Dashboard login, QwQ-32B proxy, x-search, PR preflight skill, human chat, MCP proxy pool (6 servers, 69 tools incl. brutal-mcp), **authenticated remote MCP proxy** (Will can call all 69 tools over HTTPS) all delivered.
 
 ---
 
@@ -38,10 +38,11 @@ Your raw token is shared by Andrew securely out-of-band. The token gives you the
 ```
 prs:read, prs:write, issues:read, search:read, stats:read,
 ci:read, ci:write, maintainers:read, messages:read, messages:write,
-sync:trigger, xai:proxy
+sync:trigger, xai:proxy, mcp:proxy
 ```
 
 The `xai:proxy` scope grants access to the Grok (xAI) and QwQ-32B proxy endpoints.
+The `mcp:proxy` scope grants authenticated remote access to all 69 MCP tools across 6 servers (see MCP Remote Proxy section below).
 
 ### What You Can Do
 
@@ -55,6 +56,8 @@ The `xai:proxy` scope grants access to the Grok (xAI) and QwQ-32B proxy endpoint
 | Start/cancel PR test runs | `ci:write` | `POST /api/pr-test/:id/start` |
 | Send/receive agent messages | `messages:*` | `/api/agent/messages` |
 | Trigger GitHub data sync | `sync:trigger` | `POST /api/sync/trigger` |
+| Invoke 69 MCP tools (6 AI servers) | `mcp:proxy` | `POST /api/federation/mcp-proxy-remote` |
+| List MCP tool catalog | `mcp:proxy` | `GET /api/federation/mcp-servers-remote` |
 
 ### Auth Pattern
 
@@ -362,6 +365,8 @@ await client.triggerSync();
 | `GET` | `/api/federation/context/:id` | *any* | Combined context (Andrew local + Will vector search) |
 | `POST` | `/api/federation/search` | search:read | Proxy to Will's vector search |
 | `GET` | `/api/federation/dashboard/human-messages` | *session* | Human chat messages (Andrew ↔ Will) |
+| `GET` | `/api/federation/mcp-servers-remote` | mcp:proxy | List all MCP servers + tools (with schemas) |
+| `POST` | `/api/federation/mcp-proxy-remote` | mcp:proxy | Invoke any MCP tool (69 tools, 6 servers) |
 
 ### Federation Queries (Bulk Data, Cached)
 
@@ -493,6 +498,7 @@ When classifying bot comments via `PUT /api/bot-review/classify/:id`:
 | `examples/daily-triage.js` | Full triage workflow (pick, sync, report) |
 | `examples/messages.js` | Messaging example |
 | `examples/grok-proxy.js` | Grok/xAI proxy usage example |
+| `examples/mcp-proxy.js` | MCP remote proxy test (69 tools, 6 servers) |
 | `SPEC.md` | Full platform specification |
 | `SECURITY-CHEAT-SHEET.md` | Auth, scopes, QwQ findings, threat model |
 | `HANDOVER.md` | This file |
@@ -771,7 +777,7 @@ POST /api/federation/search         Proxy to Will's search (uses search:read sco
 
 ## MCP Proxy Pool (New — 2026-03-12)
 
-Andrew's PRmanager now exposes **6 MCP servers with 65 tools** through a single HTTP proxy endpoint. Any federation node can call any tool on any server.
+Andrew's PRmanager now exposes **6 MCP servers with 69 tools** through a single HTTP proxy endpoint. Any federation node can call any tool on any server.
 
 ### Endpoint
 
@@ -870,6 +876,87 @@ The federation dashboard now shows:
 - **QwQ-32B status bar**: online/offline, in-flight inference, queue depth
 - **MCP proxy info**: 6 servers, active connections count
 - **Clear Stale button**: removes old pending commands from the Federation Commands panel
+
+---
+
+## MCP Remote Proxy (New - 2026-03-12, Authenticated HTTPS Access)
+
+The LAN-only MCP proxy (`/api/federation/mcp-proxy`) requires being on Andy's local network. The **remote MCP proxy** gives you authenticated access to all 69 tools over HTTPS from anywhere.
+
+### Endpoints
+
+```
+GET  /api/federation/mcp-servers-remote    List all servers + tools (with schemas)
+POST /api/federation/mcp-proxy-remote      Invoke any tool on any server
+```
+
+Both require `Authorization: Bearer <token>` with `mcp:proxy` scope (your token already has it).
+
+### SDK Methods (in prmanager-client.js)
+
+```javascript
+// List all available MCP tools (grouped by server)
+const catalog = await client.mcpListTools();
+// Returns: { ok: true, servers: { "brutal-mcp": { status: "available", tools: [...] }, ... } }
+
+// Invoke any tool on any server
+const result = await client.mcpInvoke('brutal-mcp', 'brutal_redteam_code', {
+  code: 'function auth(t) { return t === SECRET; }',
+  context: 'auth handler',
+  depth: 'quick',
+});
+// Returns: { ok: true, server, tool, result: { content: [{ type: "text", text: "..." }] } }
+
+// Convenience: brutal code review (returns text directly)
+const verdict = await client.brutalCodeReview(codeString, 'production auth', 'quick');
+
+// Convenience: Pantheon council deliberation
+const council = await client.pantheonCouncil('Should we add WebSocket to the federation?');
+
+// Convenience: Pantheon query (auto-routed)
+const answer = await client.pantheonQuery('What are the best practices for API rate limiting?');
+```
+
+### curl Examples (Remote, Over HTTPS)
+
+```bash
+TOKEN="$PRMANAGER_TOKEN"
+BASE="https://andy.taild3619e.ts.net"
+
+# List all servers and tools
+curl -s -H "Authorization: Bearer $TOKEN" $BASE/api/federation/mcp-servers-remote | jq '.servers | keys'
+
+# Red-team a code snippet via QwQ-32B
+curl -s -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"server":"brutal-mcp","tool":"brutal_redteam_code","args":{"code":"if (user.role == \"admin\") grant();","depth":"quick"}}' \
+  $BASE/api/federation/mcp-proxy-remote
+
+# Pantheon council
+curl -s -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"server":"pantheon","tool":"pantheon_query","args":{"query":"Best embedding model for code search?"}}' \
+  $BASE/api/federation/mcp-proxy-remote
+
+# Deep research
+curl -s -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"server":"google-deep-research","tool":"quick_research","args":{"topic":"pgvector vs Pinecone for 600K docs"}}' \
+  $BASE/api/federation/mcp-proxy-remote
+```
+
+### Rate Limits
+
+- **Remote MCP proxy**: 20 requests/minute per agent (separate from LAN limit)
+- **brutal-mcp**: still 4 req/min (GPU bottleneck), 1 concurrent, queue max 3
+- **All other servers**: effectively unlimited within the 20/min envelope
+
+### Key Difference from LAN Proxy
+
+| | LAN Proxy | Remote Proxy |
+|---|-----------|-------------|
+| **Endpoint** | `/api/federation/mcp-proxy` | `/api/federation/mcp-proxy-remote` |
+| **Auth** | `requireLan` (IP allowlist) | `requireScope('mcp:proxy')` (Bearer token) |
+| **Access** | Same LAN only (192.168.x.x) | Anywhere over HTTPS |
+| **Rate limit** | 30 req/min | 20 req/min |
+| **Audit** | Logged | Logged (with agent_id) |
 
 ---
 

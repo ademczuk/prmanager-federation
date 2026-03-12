@@ -418,6 +418,96 @@ export class PRManagerClient {
     return this._fetch(`/api/federation/queries/${name}${qs}`, { method: 'POST' });
   }
 
+  // ─── MCP Proxy (69 tools across 6 AI servers) ────────────────
+
+  /**
+   * List all MCP servers and their tools with full schemas.
+   * Requires mcp:proxy scope.
+   *
+   * @returns {Promise<{ ok: boolean, servers: Object }>}
+   *   servers keyed by name, each with { status, tools: [{ name, description, inputSchema }] }
+   *
+   * Servers: hermes-unified (6), hermes-agentic (11), titan-agentic (4),
+   *          pantheon (13), google-deep-research (24), brutal-mcp (11)
+   */
+  async mcpListTools() {
+    return this._fetch('/api/federation/mcp-servers-remote');
+  }
+
+  /**
+   * Invoke any MCP tool on any registered server.
+   * Requires mcp:proxy scope. Rate limited: 20/min general, 4/min brutal-mcp.
+   *
+   * @param {string} server - Server name (e.g. 'brutal-mcp', 'pantheon', 'hermes-agentic')
+   * @param {string} tool - Tool name (e.g. 'brutal_redteam_code', 'pantheon_query')
+   * @param {object} [args] - Tool arguments
+   * @returns {Promise<{ ok: boolean, server: string, tool: string, result: object }>}
+   *
+   * Example — adversarial code review:
+   *   await client.mcpInvoke('brutal-mcp', 'brutal_redteam_code', {
+   *     code: diffText,
+   *     context: 'PR #1234: Add auth middleware',
+   *     depth: 'quick'  // 'quick' | 'standard' | 'deep'
+   *   });
+   *
+   * Example — multi-model council deliberation:
+   *   await client.mcpInvoke('pantheon', 'pantheon_council', {
+   *     query: 'Should we merge this PR given 2 failing CI checks?',
+   *     mode: 'async'
+   *   });
+   *
+   * Example — semantic search:
+   *   await client.mcpInvoke('hermes-unified', 'semantic_search', {
+   *     query: 'authentication middleware patterns'
+   *   });
+   *
+   * Example — deep research:
+   *   await client.mcpInvoke('google-deep-research', 'deep_research', {
+   *     topic: 'Best practices for OpenClaw contribution review'
+   *   });
+   */
+  async mcpInvoke(server, tool, args = {}) {
+    return this._fetch('/api/federation/mcp-proxy-remote', {
+      method: 'POST',
+      body: JSON.stringify({ server, tool, args }),
+    });
+  }
+
+  /**
+   * Run adversarial code review via QwQ-32B brutal red-team engine.
+   * Convenience wrapper for brutal_redteam_code.
+   *
+   * @param {string} code - Code or diff to review
+   * @param {string} [context] - What the code does, production criticality
+   * @param {string} [depth='quick'] - 'quick' (~40s) | 'standard' (~2min) | 'deep' (~4min)
+   * @returns {Promise<string>} Structured review with verdict: SHIP_IT / SHIP_WITH_FIXES / MAJOR_REFACTOR / REWRITE
+   */
+  async brutalCodeReview(code, context = '', depth = 'quick') {
+    const r = await this.mcpInvoke('brutal-mcp', 'brutal_redteam_code', { code, context, depth });
+    return r?.result?.content?.[0]?.text || JSON.stringify(r?.result);
+  }
+
+  /**
+   * Ask Pantheon multi-model council for a decision.
+   * 4 models deliberate with peer review.
+   *
+   * @param {string} query - The decision question
+   * @param {string} [mode='sync'] - 'sync' or 'async'
+   * @returns {Promise<object>} Council response with consensus
+   */
+  async pantheonCouncil(query, mode = 'sync') {
+    return this.mcpInvoke('pantheon', 'pantheon_council', { query, mode });
+  }
+
+  /**
+   * Query Pantheon (auto-routes by complexity).
+   * @param {string} query - Question
+   * @returns {Promise<object>}
+   */
+  async pantheonQuery(query) {
+    return this.mcpInvoke('pantheon', 'pantheon_query', { query, mode: 'sync' });
+  }
+
   // ─── Human Chat (human-to-human messaging) ──────────────────
 
   /**
