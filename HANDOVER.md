@@ -3,7 +3,7 @@
 **From:** Andrew's Claude Code agent
 **To:** Will's Codex GPT-5.4 agent (@sparkyrider)
 **Date:** 2026-03-09 (updated)
-**Status:** Federation LIVE. Both sides connected. Dashboard at /federation.
+**Status:** Federation LIVE + BIDIRECTIONAL. Both agents call each other. Dashboard login, QwQ-32B proxy, x-search, PR preflight skill, human chat, MCP proxy pool (6 servers, 65 tools incl. brutal-mcp) all delivered.
 
 ---
 
@@ -36,9 +36,12 @@ Auth:     Authorization: Bearer <raw-token>
 Your raw token is shared by Andrew securely out-of-band. The token gives you these scopes:
 
 ```
-prs:read, issues:read, search:read, stats:read, ci:read, ci:write,
-maintainers:read, messages:read, messages:write, prs:write, sync:trigger
+prs:read, prs:write, issues:read, search:read, stats:read,
+ci:read, ci:write, maintainers:read, messages:read, messages:write,
+sync:trigger, xai:proxy
 ```
+
+The `xai:proxy` scope grants access to the Grok (xAI) and QwQ-32B proxy endpoints.
 
 ### What You Can Do
 
@@ -172,7 +175,7 @@ await client.unpickPR(prId);
 node examples/daily-triage.js
 ```
 
-This runs all 8 steps automatically and sends a structured summary to Andrew.
+This runs all 9 steps automatically and sends a structured summary to Andrew.
 
 ### Messages with Date Filter
 
@@ -184,7 +187,7 @@ const msgs = await client.getMessages({ from_date: since, include_read: true });
 
 ---
 
-## What You Need to Build (Will's Side)
+## What Was Built (Will's Side — All Complete)
 
 ### 1. Expose `/v1/search/context` endpoint
 
@@ -340,8 +343,25 @@ await client.triggerSync();
 | `GET` | `/api/agent/messages` | messages:read | Your unread messages |
 | `POST` | `/api/agent/messages` | messages:write | Send message to Andrew |
 | `PUT` | `/api/agent/messages/:id/read` | messages:read | Mark message read |
+| `GET` | `/api/prs/:id/stacked` | prs:read | Get stacked PRs for a PR |
+| `GET` | `/api/contributors` | maintainers:read | Contributor stats (with limit) |
+| `GET` | `/api/reviews/:prId` | prs:read | Reviews for a specific PR |
+| `GET` | `/api/domain-context/:prId` | *any* | Domain context for a PR |
+| `GET` | `/api/domain-context/:prId/related` | *any* | Related merged PRs (local pgvector) |
+| `POST` | `/api/candidates/:id/status` | prs:write | Update candidate lifecycle status |
 | `GET` | `/api/federation/queries` | *none* | List available predefined queries |
 | `POST` | `/api/federation/queries/:name` | *any* | Run a named bulk query (cached) |
+| `POST` | `/api/xai/*` | xai:proxy | Grok proxy (x.ai API, model access controls apply) |
+| `POST` | `/api/qwq/v1/chat/completions` | xai:proxy | QwQ-32B proxy (uncensored reasoning, 15 req/min) |
+| `GET` | `/api/qwq/v1/models` | xai:proxy | List QwQ models |
+| `GET` | `/api/qwq/health` | xai:proxy | QwQ-32B health check |
+| `POST` | `/auth/login` | *none* | Dashboard login (GitHub PAT, returns session cookie) |
+| `GET` | `/auth/me` | *none* | Current session identity |
+| `POST` | `/auth/logout` | *none* | End dashboard session |
+| `GET` | `/v1/federation` | *none* | Both agents' health in one call |
+| `GET` | `/api/federation/context/:id` | *any* | Combined context (Andrew local + Will vector search) |
+| `POST` | `/api/federation/search` | search:read | Proxy to Will's vector search |
+| `GET` | `/api/federation/dashboard/human-messages` | *session* | Human chat messages (Andrew ↔ Will) |
 
 ### Federation Queries (Bulk Data, Cached)
 
@@ -364,6 +384,28 @@ const result = await client.runFederationQuery('low_hanging_fruit', 10);
 | `needs_review` | PRs needing reviewer attention (open, no recent review) | 5 min |
 | `category_summary` | PR count by AI category | 2 min |
 | `pr_velocity` | Merge + creation rate (merged_7d, merged_30d, open_total, created_7d) | 1 min |
+
+**Note:** `runFederationQuery('low_hanging_fruit')` returns cached bulk data (fast, shared cache, 5 min TTL). `getLowHangingFruit({ exclude_triaged_days: 7 })` returns fresh data with triage deduplication (no cache, supports exclusion filter). Use `getLowHangingFruit()` for the triage workflow; use federation queries for analytics and bulk reads.
+
+### Domain Context & Related PRs
+
+```javascript
+// Get domain context for a PR (files touched, related areas)
+const ctx = await client.getDomainContext(prId);
+
+// Get related merged PRs from Andrew's local pgvector index
+const related = await client.getRelatedMerged(prId);
+// Returns PRs with similarity scores — the local analogue of your /v1/search/context
+
+// Get stacked PRs (dependent PR chains)
+const stacked = await client.getStackedPRs(prId);
+
+// Get reviews for a PR
+const reviews = await client.getReviews(prId);
+
+// Get contributor stats
+const contributors = await client.getContributors({ limit: 20 });
+```
 
 ### Model Access Controls (on `/api/agent/me`)
 
@@ -443,14 +485,16 @@ When classifying bot comments via `PUT /api/bot-review/classify/:id`:
 
 | File | Purpose |
 |------|---------|
-| `prmanager-client.js` | HTTP client SDK — import and use |
+| `prmanager-client.js` | HTTP client SDK (xAI + QwQ + federation + triage + messaging) |
 | `openapi-spec.yaml` | Full OpenAPI 3.0 spec |
 | `README.md` | Setup guide |
 | `.env.example` | Config template |
 | `examples/triage.js` | Basic connectivity test |
 | `examples/daily-triage.js` | Full triage workflow (pick, sync, report) |
 | `examples/messages.js` | Messaging example |
+| `examples/grok-proxy.js` | Grok/xAI proxy usage example |
 | `SPEC.md` | Full platform specification |
+| `SECURITY-CHEAT-SHEET.md` | Auth, scopes, QwQ findings, threat model |
 | `HANDOVER.md` | This file |
 
 ---
@@ -467,10 +511,19 @@ When classifying bot comments via `PUT /api/bot-review/classify/:id`:
 - [ ] Run `node examples/triage.js` to verify connectivity
 - [ ] Run `node examples/daily-triage.js` to test full triage workflow
 - [ ] Pick low-hanging fruit PRs and triage bot comments
+- [ ] Wire `prmanager-client.js` SDK into GH Search Tool server for automatic API calls
+- [ ] Implement `/v1/triage` endpoint (calls getLowHangingFruit → pickPR → syncBotComments → triagePR → sendMessage → unpickPR)
+- [ ] Expose `POST /v1/triage/trigger` so Andrew's agent can kick off triage on demand
+- [ ] Send triage completion messages via `client.sendMessage('andrew', ...)`
 - [ ] Implement heartbeat pings (see Outstanding Enhancements #8)
 - [ ] Add `/v1/stats` endpoint for search index metadata (see #13)
 - [ ] Add `error_code` + `retryable` fields to error responses (see #15)
 - [ ] Add async 202 Accepted support for slow queries (see #16)
+- [ ] Complete federated query pipeline (Will's side - bulk queries against each other's datasets)
+- [ ] Test QwQ-32B proxy for PR red-team analysis (`client.qwqChat(...)`)
+- [ ] Test Grok x_search proxy for X/Twitter live search (`client.grokChat(...)`)
+- [ ] Log into dashboard with GitHub PAT at `https://andy.taild3619e.ts.net/`
+- [ ] Drop PR preflight skill into Codex workspace as CLAUDE.md or system instructions
 
 ---
 
@@ -504,6 +557,38 @@ const tasks = msgs.messages.filter(m => m.message_type === 'code_task');
 
 Each task body is a JSON object with `description`, `code`, and `language` fields.
 
+### Human Chat (Andrew ↔ Will Direct Messages)
+
+The Federation Control Room now has a third panel for human-to-human messaging. Bot messages stay in their respective panels (Andrew Inbox, Will Tasks), while human chat lives in its own conversation view.
+
+**How it works:**
+- Messages use `message_type: 'human'` in the same `agent_messages` table
+- Bot messages use other types (`info`, `request`, `code_task`, etc.) and stay separate
+- The chat panel shows messages chronologically with chat-bubble styling
+- A consolidated "Bot Traffic" accordion shows all recent bot messages in one timeline
+
+**Will's dashboard login:**
+1. Navigate to `https://andy.taild3619e.ts.net/federation`
+2. You'll see the auth wall (you're not on localhost)
+3. Log in with your GitHub PAT via `POST /auth/login` (the auth page has instructions)
+4. After login, you're identified as `will` (server maps GitHub username `sparkyrider` → `will`)
+5. Messages you send from the dashboard are tagged `from_agent = 'will'`
+
+**SDK methods for programmatic access:**
+```javascript
+// Send a human chat message
+await client.sendHumanMessage('andrew', 'Hey, PR #33608 looks ready');
+
+// Fetch human chat history
+const chat = await client.getHumanMessages({ limit: 50 });
+// Returns { messages: [...], count: N }
+```
+
+**API endpoint:**
+```
+GET  /api/federation/dashboard/human-messages   Human chat messages (chronological)
+```
+
 ### Security Model (For Reference)
 
 Mark-read endpoint ownership: you can only mark messages where `to_agent = 'will'` (your own inbox). Andrew's browser can mark any message (admin bypass). Attempting to mark someone else's message returns 403.
@@ -521,6 +606,343 @@ Or check your inbox:
 ```javascript
 const inbox = await client.getMessages();
 ```
+
+---
+
+## QwQ-32B Access (Uncensored Reasoning LLM)
+
+Andrew's local QwQ-32B-abliterated (Qwen reasoning model, uncensored variant) is exposed through the PRmanager API. Same token, same base URL. Running on an RTX 4090 via llama.cpp.
+
+- 32.7B params, Q4_K_M quantisation
+- No content filters, no refusals - designed for adversarial red-team analysis
+- Chain-of-thought reasoning (wraps thinking in `<think>` tags)
+
+### Endpoints
+
+```
+POST /api/qwq/v1/chat/completions   Chat completions (OpenAI-compatible format)
+GET  /api/qwq/v1/models             List available models
+GET  /api/qwq/health                Health check
+```
+
+### SDK Usage
+
+```javascript
+// Quick chat (convenience wrapper)
+const review = await client.qwqChat(
+  `Review this PR diff for security issues:\n\n${prDiff}`,
+  { system: 'You are a brutally honest code reviewer. No sugarcoating.', temperature: 0.4 }
+);
+
+// Raw API call
+const resp = await client.qwq('/v1/chat/completions', {
+  messages: [
+    { role: 'system', content: 'You are a code reviewer.' },
+    { role: 'user', content: 'Review this function...' }
+  ],
+  temperature: 0.4,
+  max_tokens: 2048,
+  stream: false,
+});
+const text = resp?.choices?.[0]?.message?.content
+  || resp?.choices?.[0]?.message?.reasoning_content;
+```
+
+### Quirks (IMPORTANT)
+
+| Quirk | Detail |
+|-------|--------|
+| `max_tokens` minimum | Set to >= 1200. Internal reasoning tokens count against budget. Too low = empty visible response |
+| Empty content | If `choices[0].message.content` is empty, check `reasoning_content` instead |
+| Temperature | 0.3-0.5 for analysis. Higher values make reasoning erratic |
+| Context window | 8192 tokens. Keep prompts under 6K to leave room for response |
+| Rate limit | 15 requests/minute (single GPU, not a cluster) |
+
+### Use Cases for Your Agent
+
+- Red-team code review (adversarial, no sugarcoating)
+- PR risk assessment (will this break things?)
+- Security audit on diffs
+- Uncensored analysis of contentious PRs where polite models hedge
+- Second opinion on merge decisions
+
+---
+
+## Dashboard Login (GitHub PAT Auth)
+
+Will can log into the PRmanager dashboard directly in a browser. No shared passwords - you bring your own GitHub Personal Access Token.
+
+### URL
+
+```
+https://andy.taild3619e.ts.net/
+```
+
+### How to Log In (Browser)
+
+1. Generate a GitHub PAT at `https://github.com/settings/tokens` - fine-grained token, `read:user` scope only
+2. Open `https://andy.taild3619e.ts.net/` in browser
+3. Click "Login" button in the header (top right)
+4. Paste your PAT into the modal
+5. Click "Verify & Log in"
+
+Your PAT is used ONCE to verify identity via `api.github.com/user`, then discarded. Never stored in DB or logs. The server creates an HttpOnly session cookie (`prm_session`, 7-day expiry).
+
+### Programmatic Login (For Your Codex or GH Search Tool Server)
+
+```javascript
+// Login
+const resp = await fetch('https://andy.taild3619e.ts.net/auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ token: 'ghp_your_github_pat_here' }),
+});
+// Response sets Set-Cookie: prm_session=<random-64-char-hex>; HttpOnly; Secure; SameSite=Lax
+
+// Check session
+const me = await fetch('https://andy.taild3619e.ts.net/auth/me', {
+  headers: { Cookie: 'prm_session=<session_token>' },
+});
+// Returns: { user: { github_login, display_name, avatar_url, scopes } }
+
+// Logout
+await fetch('https://andy.taild3619e.ts.net/auth/logout', {
+  method: 'POST',
+  headers: { Cookie: 'prm_session=<session_token>' },
+});
+```
+
+### What Dashboard Shows (read-only)
+
+- Overview dashboard (4,929+ open PRs, velocity charts, coverage stats)
+- Pull Requests list with filters
+- Issues list
+- Maintainers rankings, Contributors stats
+- Queues (ready-to-merge, action-state)
+- Clusters (duplicate detection)
+
+Write operations (pick/unpick PRs, sync bots, start CI, send messages, trigger sync) still require the Bearer token via API.
+
+### Security Notes
+
+- PAT verified once then discarded (never stored)
+- Session cookie: HttpOnly, Secure, SameSite=Lax
+- Sessions expire after 7 days
+- All login attempts audit-logged (IP, user agent, success/fail)
+- You can revoke your PAT immediately after login - session still works
+- Your existing federation Bearer token is completely separate and unchanged
+
+---
+
+## Federation: Bidirectional (LIVE)
+
+Both agents now call each other. Verified via Tailscale, both directions.
+
+### Andrew → Will (Andrew calls Will's endpoints)
+
+```
+POST https://macbookpro.tailef02e2.ts.net/v1/search/context   Vector search
+GET  https://macbookpro.tailef02e2.ts.net/v1/health            Health check
+GET  https://macbookpro.tailef02e2.ts.net/v1/stats             Search index stats (pending)
+```
+
+### Will → Andrew (Will calls Andrew's endpoints)
+
+```
+GET/POST https://andy.taild3619e.ts.net/api/*   All 29+ endpoints (your existing token)
+```
+
+### New Federation Endpoints on Andrew's Side
+
+```
+GET  /v1/federation                 Health status of both agents (public, no auth)
+GET  /api/federation/context/:id    Combined context: Andrew's local embeddings + Will's vector search
+POST /api/federation/search         Proxy to Will's search (uses search:read scope)
+```
+
+### What Will Needs to Wire Up Now
+
+1. **Import `prmanager-client.js` SDK** into your GH Search Tool server - it's ready to use
+2. **Implement `/v1/triage`** endpoint that runs the full daily-triage workflow (see daily-triage.js example)
+3. **Expose `/v1/triage/trigger`** so Andrew's agent can kick off triage on demand
+4. **Send completion messages** via the message bus when triage completes
+
+---
+
+## MCP Proxy Pool (New — 2026-03-12)
+
+Andrew's PRmanager now exposes **6 MCP servers with 65 tools** through a single HTTP proxy endpoint. Any federation node can call any tool on any server.
+
+### Endpoint
+
+```
+POST /api/federation/mcp-proxy
+Content-Type: application/json
+
+{
+  "server": "SERVER_NAME",
+  "tool": "TOOL_NAME",
+  "args": { ... }
+}
+```
+
+**No auth required** (LAN-only, `requireLan` middleware). Accessible from `http://192.168.0.36:3099/api/federation/mcp-proxy`.
+
+### Available Servers
+
+| Server | Tools | What It Does |
+|--------|-------|-------------|
+| `hermes-unified` | 6 | Multi-model AI chat (OpenAI, Anthropic, Grok, Gemini), semantic search, Obsidian vault |
+| `hermes-agentic` | 7 | Agentic queries with 4-model consensus, autonomous planning, reflection |
+| `titan-agentic` | 4 | Agent execution, memory, training, async jobs |
+| `pantheon` | 13 | Council deliberation, routing, memory, budget, model weights, feedback, learning |
+| `google-deep-research` | 24 | Deep research, recursive research, guided templates, YouTube transcripts, architect agent |
+| `brutal-mcp` | 11 | QwQ-32B adversarial analysis: code review, decisions, strategy, claims, CVs, career advice |
+
+### Quick Examples
+
+```bash
+# Check brutal LLM status
+curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
+  -H 'Content-Type: application/json' \
+  -d '{"server":"brutal-mcp","tool":"brutal_status","args":{}}'
+
+# Ask QwQ-32B a career question
+curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
+  -H 'Content-Type: application/json' \
+  -d '{"server":"brutal-mcp","tool":"brutal_career_advice","args":{"question":"What makes a good open-source contributor?"}}'
+
+# Red-team a code snippet
+curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
+  -H 'Content-Type: application/json' \
+  -d '{"server":"brutal-mcp","tool":"brutal_redteam_code","args":{"code":"function auth(token) { return token === SECRET; }","context":"production auth handler"}}'
+
+# Pantheon council deliberation
+curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
+  -H 'Content-Type: application/json' \
+  -d '{"server":"pantheon","tool":"pantheon_council","args":{"query":"Should we add WebSocket support to the federation?","mode":"async"}}'
+
+# Deep research
+curl -s -X POST http://192.168.0.36:3099/api/federation/mcp-proxy \
+  -H 'Content-Type: application/json' \
+  -d '{"server":"google-deep-research","tool":"deep_research","args":{"topic":"MCP protocol best practices 2026"}}'
+
+# List all tools on a server
+curl -s http://192.168.0.36:3099/api/federation/mcp-servers
+```
+
+### Brutal-MCP Tools (QwQ-32B)
+
+| Tool | Use For | Verdict Scale |
+|------|---------|---------------|
+| `brutal_status` | Health check (fast, 10s timeout) | - |
+| `brutal_career_advice` | Career questions, no sugar-coating | Free-form |
+| `brutal_score_text` | Assess job description | Deal-breakers + rejection probability |
+| `brutal_cv_reality_check` | Quick CV vs JD gap analysis | Recruiter's honest take |
+| `brutal_redteam_code` | Adversarial code review (quick/standard/deep) | SHIP_IT / SHIP_WITH_FIXES / MAJOR_REFACTOR / REWRITE |
+| `brutal_redteam_decision` | Red-team life decisions | PROCEED / PAUSE / ABORT |
+| `brutal_redteam_strategy` | Red-team business strategy | STRONG_PROCEED / PIVOT / FUNDAMENTAL_FLAW / ABORT |
+| `brutal_redteam_claim` | Stress-test arguments/beliefs | VALIDATED / FLAWED / INVALID |
+| `brutal_redteam_cv` | Deep CV vs JD red-team (5-phase) | STRONG_MATCH / TAILOR / LONG_SHOT / DO_NOT_APPLY |
+| `brutal_assess_job` | Full 4-phase assessment (needs DB job ID) | - |
+| `brutal_top_jobs` | Batch assess top unscored jobs | - |
+
+### Rate Limits & Timeouts
+
+- **General MCP tools**: 30 req/min
+- **brutal-mcp**: 4 req/min (QwQ-32B is slow, single GPU)
+- **Concurrency**: 1 brutal call at a time, queue max 3 (returns 503 if full)
+- **Timeouts**: 10s for status, 120-180s for inference tools
+- **Response format**: `{ ok: true, server, tool, result: { content: [{ type: "text", text: "..." }] } }`
+
+### Stale Command Cleanup
+
+```bash
+# Delete pending commands older than 5 minutes
+curl -s -X POST http://192.168.0.36:3099/api/federation/commands/cleanup \
+  -H 'Content-Type: application/json' \
+  -d '{"maxAgeMinutes": 5}'
+```
+
+### Dashboard Status
+
+The federation dashboard now shows:
+- **QwQ-32B status bar**: online/offline, in-flight inference, queue depth
+- **MCP proxy info**: 6 servers, active connections count
+- **Clear Stale button**: removes old pending commands from the Federation Commands panel
+
+---
+
+## X/Twitter Search Tools
+
+Two versions of the x-search skill are available.
+
+### x-search-skill-codex (Codex-adapted version)
+
+For Codex's sandboxed environment (no internet). Uses a pre-fetch + cache pattern:
+
+| File | Purpose |
+|------|---------|
+| `SKILL.md` | Setup guide, workflow, AGENTS.md snippet to paste into repo |
+| `scripts/fetch_x_search.py` | Run locally (has internet) to cache search results to JSON |
+
+**How it works:**
+1. Run `python fetch_x_search.py "query"` on your machine (has internet) - saves `x_search_cache.json`
+2. Upload that JSON alongside your Codex task
+3. Add the AGENTS.md snippet so Codex knows to read the cache
+4. Codex analyses the cached data (no internet needed)
+
+**Key features:**
+- Supports multi-query batch fetching in one run
+- Appends to existing cache (run it multiple times to build up queries)
+- Includes staleness metadata so Codex knows how fresh the data is
+- No personal paths anywhere - just `~/keys.txt` or `XAI_API_KEY` env var
+
+### Grok x_search via PRmanager Proxy
+
+Your agent can also access X/Twitter search through Andrew's proxy endpoint:
+
+```javascript
+const resp = await client.xai('/v1/responses', {
+  model: 'grok-4-1-fast',
+  input: [{ role: 'user', content: 'What are people saying about openclaw?' }],
+  tools: [{ type: 'x_search' }],
+  max_output_tokens: 2048,
+});
+```
+
+This uses Andrew's xAI API key - you don't need your own.
+
+---
+
+## PR Preflight Skill for OpenClaw
+
+A self-contained PR preflight checklist is available for Will's Codex. Drop it into your Codex workspace as `CLAUDE.md` or system instructions. It covers:
+
+- **Commit rules** with `Co-Authored-By: sparkyrider <Will@willthings.com>` trailer (mandatory)
+- **Anti-AI detection markers** (what to never include in commits/PR text)
+- **All three review bot profiles** (barnacle, greptile, codex-connector) with accuracy stats and engagement rules
+- **Full pre-flight checklist** (10 sections: gate check, branch hygiene, type safety, security, behavioural correctness, tests, formatting, Docker/CI, imports, CHANGELOG)
+- **Pre-push script** (runs all checks in sequence)
+- **PR description template** (OpenClaw standard format)
+- **Bot reply strategy** (how to respond to each bot)
+- **Reviewer targeting** and pickup factors (ranked by weight)
+- **Build/test commands** (`pnpm tsgo`, `pnpm check`, `pnpm test`, etc.)
+- **Fork PR gotchas** (secrets job failure, force push, retrigger CI)
+
+File: `openclaw-pr-preflight-for-codex.md` (available via Discord or repo)
+
+---
+
+## Will's Pipeline: Federated Queries (In Progress)
+
+Will is working on federated queries from his end - predefined queries that either agent can run against each other's datasets. This should provide:
+
+- Bulk data retrieval faster than individual API calls
+- Solve the vector dimension mismatch (no direct vector queries needed)
+- Allow Will's LLM to get bulk data when needed
+
+**Status:** In progress on Will's side. He'll send materials once further along, and will have his bot reconnect to test.
 
 ---
 

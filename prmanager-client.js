@@ -308,6 +308,86 @@ export class PRManagerClient {
     return this._fetch('/api/xai/v1/models');
   }
 
+  // ─── QwQ-32B Proxy (uncensored reasoning LLM on Andrew's RTX 4090) ─
+
+  /**
+   * Call QwQ-32B through PRmanager's proxy.
+   * OpenAI-compatible chat completions format.
+   * Same Bearer token as all other endpoints.
+   *
+   * @param {string} path - QwQ API path (e.g. '/v1/chat/completions')
+   * @param {object} body - Request body (messages, temperature, max_tokens)
+   * @param {object} [opts] - Additional fetch options
+   * @returns {Promise<object>} QwQ API response
+   *
+   * IMPORTANT quirks:
+   *   - Set max_tokens >= 1200 (model uses internal reasoning tokens)
+   *   - If choices[0].message.content is empty, check reasoning_content
+   *   - Temperature 0.3-0.5 best for analysis, higher = erratic
+   *   - Context window: 8192 tokens (keep prompts under 6K)
+   *   - Rate limit: 15 req/min (single GPU)
+   */
+  async qwq(path, body, opts = {}) {
+    return this._fetch(`/api/qwq${path}`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      ...opts,
+    });
+  }
+
+  /**
+   * Chat with QwQ-32B through the proxy.
+   * Convenience wrapper for QwQ chat completions.
+   *
+   * @param {string} message - User message
+   * @param {object} [options] - { system, temperature, max_tokens }
+   * @returns {Promise<string>} QwQ's response (checks both content and reasoning_content)
+   */
+  async qwqChat(message, { system, temperature = 0.4, max_tokens = 2048 } = {}) {
+    const messages = [];
+    if (system) messages.push({ role: 'system', content: system });
+    messages.push({ role: 'user', content: message });
+
+    const body = { messages };
+    if (temperature !== undefined) body.temperature = temperature;
+    if (max_tokens !== undefined) body.max_tokens = max_tokens;
+
+    const resp = await this.qwq('/v1/chat/completions', body);
+    return resp?.choices?.[0]?.message?.content
+      || resp?.choices?.[0]?.message?.reasoning_content
+      || '';
+  }
+
+  /** List available QwQ models */
+  async qwqModels() {
+    return this._fetch('/api/qwq/v1/models');
+  }
+
+  /** Check QwQ-32B health */
+  async qwqHealth() {
+    return this._fetch('/api/qwq/health');
+  }
+
+  // ─── Federation Status & Context ─────────────────────────
+
+  /** Get both agents' health in one call (public, no auth) */
+  async federationHealth() {
+    return this._fetch('/v1/federation');
+  }
+
+  /** Get combined context for a PR (Andrew's local pgvector + Will's vector search) */
+  async getFederationContext(prId) {
+    return this._fetch(`/api/federation/context/${prId}`);
+  }
+
+  /** Proxy search to Will's GH Search Tool */
+  async federationSearch(query, { repository, top_k } = {}) {
+    return this._fetch('/api/federation/search', {
+      method: 'POST',
+      body: JSON.stringify({ query, repository, top_k }),
+    });
+  }
+
   // ─── Federation Queries (bulk data, cached) ────────────────
 
   /**
@@ -336,5 +416,31 @@ export class PRManagerClient {
   async runFederationQuery(name, limit) {
     const qs = limit ? `?limit=${limit}` : '';
     return this._fetch(`/api/federation/queries/${name}${qs}`, { method: 'POST' });
+  }
+
+  // ─── Human Chat (human-to-human messaging) ──────────────────
+
+  /**
+   * Send a human chat message to the other collaborator.
+   * Uses message_type='human' to separate from bot traffic.
+   *
+   * @param {string} to_agent - Recipient agent ID ('andrew' or 'will')
+   * @param {string} body - Message text
+   * @returns {Promise<{ ok: boolean, id: string, created_at: string }>}
+   */
+  async sendHumanMessage(to_agent, body) {
+    return this._fetch('/api/agent/messages', {
+      method: 'POST',
+      body: JSON.stringify({ to_agent, subject: 'chat', body, message_type: 'human' }),
+    });
+  }
+
+  /**
+   * Get human chat messages between Andrew and Will.
+   * @param {object} [opts] - { limit }
+   * @returns {Promise<{ messages: Array, count: number }>}
+   */
+  async getHumanMessages({ limit } = {}) {
+    return this._fetch(`/api/federation/dashboard/human-messages${this._qs({ limit })}`);
   }
 }
